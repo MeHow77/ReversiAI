@@ -4,6 +4,7 @@ directions = [(-1, 0), (-1, 1), (-1, -1), (0, -1),
               (0, 1), (1, 0), (1, -1), (1, 1)]  # listy kierunkowe są fajne
 
 players = {"redP": -1, "blueP": 1}
+emptyCell = 0
 
 def fitsInBoard(grid, x, y):
     return (len(grid) > x >= 0
@@ -42,5 +43,14 @@ def checkRules(grid, x, y, player):
                     break
     return result, changingstones
 
+def isDone(grid, player):
+    size = len(grid)
+    for row in range(size):
+        for col in range(size):
+            if grid[row][col] == emptyCell:
+                result = checkRules(grid, row, col, player)
+                if result[0]:
+                    return False
 
+    return True
 

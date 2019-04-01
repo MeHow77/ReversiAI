@@ -34,7 +34,7 @@ class Reversi():
         self.botsColor = self.curPlayer * -1
 
         depth = 4
-        self.botPlayer = ReversiBot(self.grid, depth)
+        self.botPlayer = ReversiBot(self.grid, depth, self.botsColor, self.curPlayer)
 
 
     def getXYfromMousePos(self, pos):
@@ -78,7 +78,7 @@ class Reversi():
         return None
 
     def press(self,x , y):
-        if self.grid[x][y] == 0:
+        if self.grid[x][y] == UMV.emptyCell:
             resultTuple = UMV.checkRules(self.grid, x, y, self.curPlayer)
             if (resultTuple[0]):
                 self.grid[x][y] = self.curPlayer
@@ -98,7 +98,7 @@ class Reversi():
                 and (self.grid[x][y] == 0):
             i = self.cursor[0]
             j = self.cursor[1]
-            if self.grid[i][j] == 0:
+            if self.grid[i][j] == UMV.emptyCell:
                 self.drawcell((255 * ((i + j) % 2), 255 * ((i + j) % 2), 255 * ((i + j) % 2)), i, j)
             if self.curPlayer == UMV.players["redP"]:
                 color = (255, 0, 0)
@@ -112,22 +112,13 @@ class Reversi():
     def eventController(self, event):
         if self.curPlayer == self.botsColor:
             self.finishFlags[self.botsColor] = 1
-            if self.isDone() == False:
+            if  UMV.isDone(self.grid, self.botsColor) == False:
                 self.finishFlags[self.botsColor] = 0
-                #invoke bot
-                # (x, y) = self.getXYfromMousePos(pygame.mouse.get_pos())
-                # if event == pygame.MOUSEBUTTONUP:
-                #     if (self.press(x, y)):
-                #         self.curPlayer *= -1  # change player
-                # if event == pygame.MOUSEMOTION:
-                #     self.showcursor(x, y)
-            else:
+                self.botPlayer.makeMove()
                 self.curPlayer *= -1  # change player
-                #self.curPlayer *= -1  # change player
-
         else:
             self.finishFlags[self.curPlayer] = 1
-            if self.isDone() == False:
+            if UMV.isDone(self.grid, self.curPlayer) == False:
                 self.finishFlags[self.curPlayer] = 0
                 (x, y) = self.getXYfromMousePos(pygame.mouse.get_pos())
                 if event == pygame.MOUSEBUTTONUP:
@@ -143,16 +134,6 @@ class Reversi():
             print("Game finished")
 
 
-
-    def isDone(self):
-        size = len(self.grid)
-        for row in range(size):
-            for col in range(size):
-                if self.grid[row][col] == 0:
-                    result = UMV.checkRules(self.grid, row, col, self.curPlayer)
-                    if result[0]:
-                        return False
-        return True
 
     def Quit(self):
         #if player wants to end, set true...
