@@ -1,5 +1,7 @@
 import pygame
 import math
+import UtilMoveValidness
+from UtilMoveValidness import UtilMoveValidness
 
 
 class Reversi():
@@ -24,10 +26,13 @@ class Reversi():
         self.grid[index - 1][index] = -1  # te cztery na środku
         self.drawboard()
         self.update()
-        self.directions = [(-1, 0), (-1, 1), (-1, -1), (0, -1),
-                           (0, 1), (1, 0), (1, -1), (1, 1)]  # listy kierunkowe są fajne
         self.cursor = (0, 0)
-        return None
+
+        #static methods
+        UtilMoveValidness.fitsInBoard = staticmethod(UtilMoveValidness.fitsInBoard)
+        UtilMoveValidness.checkRules = staticmethod(UtilMoveValidness.checkRules)
+
+
 
     def getXYfromMousePos(self, pos):
         x = int(pos[0] / (self.screenwidth / len(self.grid)))
@@ -73,7 +78,7 @@ class Reversi():
         (x, y) = self.getXYfromMousePos(pos)
         if (self.grid[x][y] == 0):
             self.grid[x][y] = kolor
-            resultTuple = self.checkRules(x, y)
+            resultTuple = UtilMoveValidness.checkRules(self.grid, x, y)
             if (resultTuple[0]):
                 for (x1, y1) in resultTuple[1]:
                     self.grid[x1][y1] = kolor
@@ -83,45 +88,13 @@ class Reversi():
                 self.grid[x][y] = 0
                 return False
 
-    def fitsinboard(self, x, y):
-        return (len(self.grid) > x >= 0
-                and len(self.grid) > y >= 0)
 
-    def checkRules(self, x, y):
-        fitsinboard = lambda x, y: (len(self.grid) > x >= 0
-                                    and len(self.grid) > y >= 0)
-        changingstones = list()
-        result = False
-        for dir in self.directions:
-            tmplist = list()
-            dx = dir[0]
-            dy = dir[1]
-            if fitsinboard(x + dx, y + dy):
-                while (True):
-                    if self.grid[x + dx][y + dy] + self.grid[x][y] == 0:
-                        # print("different-color stone")
-                        tmplist.append((x + dx, y + dy))
-                        dx += dir[0]
-                        dy += dir[1]
-                        if not fitsinboard(x + dx, y + dy):
-                            break
-                        if self.grid[x + dx][y + dy] == self.grid[x][y]:
-                            # print("ended by same-color stone")
-                            result = True
-                            changingstones.extend(tmplist)
-                            break
-                        continue
-                    if self.grid[x + dx][y + dy] == 0:
-                        # print("no neighbor")
-                        break
-                    if self.grid[x + dx][y + dy] == self.grid[x][y]:
-                        # print("same-color neighbor")
-                        break
-        return (result, changingstones)
 
     def showcursor(self, pos, kolor):
         (x, y) = self.getXYfromMousePos(pos)
-        if (self.cursor != (x, y)) and (self.fitsinboard(x, y)) and (self.grid[x][y] == 0):
+        if (self.cursor != (x, y)) and\
+                UtilMoveValidness.fitsInBoard(self.grid, x, y)\
+                and (self.grid[x][y] == 0):
             i = self.cursor[0]
             j = self.cursor[1]
             if self.grid[i][j] == 0:
@@ -133,3 +106,5 @@ class Reversi():
             self.drawstone(kolor, x, y)
             self.cursor = (x, y)
             pygame.display.flip()
+
+    #TODO store valid moves which will be used for: end detecting, player actions, bot's predicitons
