@@ -5,12 +5,12 @@ import pickle
 import UtilMoveValidness as UMV
 from Reversi import *
 
+
 game = Reversi(8) #rozmiar planszy kwadratowej
 clock = pygame.time.Clock()
 done = False
 
-#playersColor = {"redP": -1, "blueP": 1}
-#curPlayer = playersColor["blueP"]
+
 while not done:
     clock.tick(20)
     for event in pygame.event.get():

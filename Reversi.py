@@ -1,8 +1,4 @@
 import pygame
-import math
-import copy
-
-
 import UtilMoveValidness as UMV
 
 
@@ -34,6 +30,7 @@ class Reversi():
                             UMV.players["blueP"]: 0}
 
         self.curPlayer = UMV.players["blueP"]
+        self.botsColor = self.curPlayer * -1
 
 
     def getXYfromMousePos(self, pos):
@@ -76,24 +73,23 @@ class Reversi():
         pygame.display.flip()
         return None
 
-    def press(self, pos):
-        (x, y) = self.getXYfromMousePos(pos)
+    def press(self,x , y):
+
         if self.grid[x][y] == 0:
             resultTuple = UMV.checkRules(self.grid, x, y, self.curPlayer)
             if (resultTuple[0]):
+                self.grid[x][y] = self.curPlayer
                 for (x1, y1) in resultTuple[1]:
                     self.grid[x1][y1] = self.curPlayer
                 self.update()
                 self.finishFlags[UMV.players["blueP"]] = 0 #player could move
                 return True
             else:
-                self.grid[x][y] = 0
                 return False
 
 
 
-    def showcursor(self, pos):
-        (x, y) = self.getXYfromMousePos(pos)
+    def showcursor(self, x, y):
         if (self.cursor != (x, y)) and\
                 UMV.fitsInBoard(self.grid, x, y)\
                 and (self.grid[x][y] == 0):
@@ -111,22 +107,30 @@ class Reversi():
 
 
     def eventController(self, event):
-        if self.isDone() == False:
-            if event == pygame.MOUSEBUTTONUP:
-                if(self.press(pygame.mouse.get_pos())):
-                    self.curPlayer *= -1 # change player
-                    #invoke bot here
-            if event == pygame.MOUSEMOTION:
-                self.showcursor(pygame.mouse.get_pos())
+        if self.curPlayer == self.botsColor:
+            if self.isDone() == False:
+                self.finishFlags[self.botsColor] = 0
+                #invoke bot
+                self.curPlayer *= -1  # change player
+            pass
         else:
+            if self.isDone() == False:
+                self.finishFlags[self.curPlayer] = 0
+                (x, y) = self.getXYfromMousePos(pygame.mouse.get_pos())
+                if event == pygame.MOUSEBUTTONUP:
+                    if(self.press(x, y)):
+                        self.curPlayer *= -1 # change player
+                if event == pygame.MOUSEMOTION:
+                    self.showcursor(x, y)
+        if self.finishFlags[UMV.players["blueP"]] ==\
+                self.finishFlags[UMV.players["redP"]] ==\
+                self.finishFlags[self.curPlayer] == 1:
             print("Game finished")
 
 
 
     def isDone(self):
         size = len(self.grid)
-        copiedGrid = self.grid.copy()
-
         for row in range(size):
             for col in range(size):
                 if self.grid[row][col] == 0:
