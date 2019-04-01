@@ -79,8 +79,7 @@ class Reversi():
     def press(self, pos):
         (x, y) = self.getXYfromMousePos(pos)
         if self.grid[x][y] == 0:
-            copiedGrid = self.grid.copy()
-            resultTuple = UMV.checkRules(copiedGrid, x, y, self.curPlayer)
+            resultTuple = UMV.checkRules(self.grid, x, y, self.curPlayer)
             if (resultTuple[0]):
                 for (x1, y1) in resultTuple[1]:
                     self.grid[x1][y1] = self.curPlayer
@@ -112,15 +111,18 @@ class Reversi():
 
 
     def eventController(self, event):
-        if event == pygame.MOUSEBUTTONUP:
-            if(self.press(pygame.mouse.get_pos())):
-                self.curPlayer *= -1 # change player
-                #invoke bot here
-        if event == pygame.MOUSEMOTION:
-            self.showcursor(pygame.mouse.get_pos())
+        if self.isDone() == False:
+            if event == pygame.MOUSEBUTTONUP:
+                if(self.press(pygame.mouse.get_pos())):
+                    self.curPlayer *= -1 # change player
+                    #invoke bot here
+            if event == pygame.MOUSEMOTION:
+                self.showcursor(pygame.mouse.get_pos())
+        else:
+            print("Game finished")
 
 
-    #TODO store valid moves which will be used for: end detecting, player actions, bot's predicitons
+
     def isDone(self):
         size = len(self.grid)
         copiedGrid = self.grid.copy()
@@ -128,7 +130,12 @@ class Reversi():
         for row in range(size):
             for col in range(size):
                 if self.grid[row][col] == 0:
-                    continue
+                    result = UMV.checkRules(self.grid, row, col, self.curPlayer)
+                    if result[0]:
+                        return False
+        return True
 
-                result = UMV.checkRules(copiedGrid, row, col, )
+    def Quit(self):
+        #if player wants to end, set true...
+        return False
 
