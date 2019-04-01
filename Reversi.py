@@ -1,7 +1,7 @@
 import pygame
 import math
-import UtilMoveValidness
-from UtilMoveValidness import UtilMoveValidness
+
+import UtilMoveValidness as UMV
 
 
 class Reversi():
@@ -27,10 +27,6 @@ class Reversi():
         self.drawboard()
         self.update()
         self.cursor = (0, 0)
-
-        #static methods
-        UtilMoveValidness.fitsInBoard = staticmethod(UtilMoveValidness.fitsInBoard)
-        UtilMoveValidness.checkRules = staticmethod(UtilMoveValidness.checkRules)
 
 
 
@@ -78,7 +74,7 @@ class Reversi():
         (x, y) = self.getXYfromMousePos(pos)
         if (self.grid[x][y] == 0):
             self.grid[x][y] = kolor
-            resultTuple = UtilMoveValidness.checkRules(self.grid, x, y)
+            resultTuple = UMV.checkRules(self.grid, x, y)
             if (resultTuple[0]):
                 for (x1, y1) in resultTuple[1]:
                     self.grid[x1][y1] = kolor
@@ -93,7 +89,7 @@ class Reversi():
     def showcursor(self, pos, kolor):
         (x, y) = self.getXYfromMousePos(pos)
         if (self.cursor != (x, y)) and\
-                UtilMoveValidness.fitsInBoard(self.grid, x, y)\
+                UMV.fitsInBoard(self.grid, x, y)\
                 and (self.grid[x][y] == 0):
             i = self.cursor[0]
             j = self.cursor[1]
