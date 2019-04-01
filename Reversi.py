@@ -1,5 +1,6 @@
 import pygame
 import UtilMoveValidness as UMV
+from ReversiBot import ReversiBot
 
 
 class Reversi():
@@ -31,6 +32,9 @@ class Reversi():
 
         self.curPlayer = UMV.players["blueP"]
         self.botsColor = self.curPlayer * -1
+
+        depth = 4
+        self.botPlayer = ReversiBot(self.grid, depth)
 
 
     def getXYfromMousePos(self, pos):
@@ -74,7 +78,6 @@ class Reversi():
         return None
 
     def press(self,x , y):
-
         if self.grid[x][y] == 0:
             resultTuple = UMV.checkRules(self.grid, x, y, self.curPlayer)
             if (resultTuple[0]):
@@ -108,12 +111,22 @@ class Reversi():
 
     def eventController(self, event):
         if self.curPlayer == self.botsColor:
+            self.finishFlags[self.botsColor] = 1
             if self.isDone() == False:
                 self.finishFlags[self.botsColor] = 0
                 #invoke bot
+                # (x, y) = self.getXYfromMousePos(pygame.mouse.get_pos())
+                # if event == pygame.MOUSEBUTTONUP:
+                #     if (self.press(x, y)):
+                #         self.curPlayer *= -1  # change player
+                # if event == pygame.MOUSEMOTION:
+                #     self.showcursor(x, y)
+            else:
                 self.curPlayer *= -1  # change player
-            pass
+                #self.curPlayer *= -1  # change player
+
         else:
+            self.finishFlags[self.curPlayer] = 1
             if self.isDone() == False:
                 self.finishFlags[self.curPlayer] = 0
                 (x, y) = self.getXYfromMousePos(pygame.mouse.get_pos())
@@ -122,6 +135,8 @@ class Reversi():
                         self.curPlayer *= -1 # change player
                 if event == pygame.MOUSEMOTION:
                     self.showcursor(x, y)
+            else:
+                self.curPlayer *= -1  # change player
         if self.finishFlags[UMV.players["blueP"]] ==\
                 self.finishFlags[UMV.players["redP"]] ==\
                 self.finishFlags[self.curPlayer] == 1:
