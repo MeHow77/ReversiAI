@@ -1,34 +1,37 @@
 import pygame
 import math
+
+
 class Reversi():
     screenwidth = 500
+
     def __init__(self, size):
         pygame.init()
         self.screen = pygame.display.set_mode((
             self.screenwidth, self.screenwidth))
-        if (size%2 == 1):
-            size +=1 #reversi wymaga parzystej ilości pól
+        if (size % 2 == 1):
+            size += 1  # reversi wymaga parzystej ilości pól
         self.grid = list()
         for i in range(0, size):
             row = list()
             for j in range(0, size):
-                row.append(0) #puste pole(0) czerwone(-1) niebieskie(1)
+                row.append(0)  # puste pole(0) czerwone(-1) niebieskie(1)
             self.grid.append(row)
-        index = int(size/2)
+        index = int(size / 2)
         self.grid[index][index] = 1
         self.grid[index - 1][index - 1] = 1
         self.grid[index][index - 1] = -1
-        self.grid[index - 1][index] = -1 #te cztery na środku
+        self.grid[index - 1][index] = -1  # te cztery na środku
         self.drawboard()
         self.update()
-        self.directions = [(-1,0),(-1,1),(-1,-1),(0,-1),
-                           (0,1), (1,0), (1,-1), (1,1)] #listy kierunkowe są fajne
+        self.directions = [(-1, 0), (-1, 1), (-1, -1), (0, -1),
+                           (0, 1), (1, 0), (1, -1), (1, 1)]  # listy kierunkowe są fajne
         return None
 
     def getXYfromMousePos(self, pos):
         x = int(pos[0] / (self.screenwidth / len(self.grid)))
         y = int(pos[1] / (self.screenwidth / len(self.grid)))
-        return (x, y)
+        return x, y
 
     def drawstone(self, kolor, x, y):
         cellwidth = self.screenwidth / len(self.grid)
@@ -42,16 +45,17 @@ class Reversi():
 
     def drawcell(self, kolor, x, y):
         cellwidth = self.screenwidth / len(self.grid)
-        pygame.draw.rect(self.screen,kolor,
+        pygame.draw.rect(self.screen, kolor,
                          pygame.Rect(x * cellwidth, y * cellwidth,
                                      cellwidth, cellwidth))
+
     def drawboard(self):
-        cells=0
+        cells = 0
         for i in range(0, len(self.grid)):
             for j in range(0, len(self.grid)):
                 self.drawcell((255 * cells, 255 * cells, 255 * cells), i, j)
-                cells^=1
-            cells ^= 1 #to żeby kolory pól były na przemian
+                cells ^= 1
+            cells ^= 1  # to żeby kolory pól były na przemian
         return None
 
     def update(self):
@@ -66,10 +70,10 @@ class Reversi():
 
     def press(self, pos, kolor):
         (x, y) = self.getXYfromMousePos(pos)
-        if(self.grid[x][y] == 0):
+        if (self.grid[x][y] == 0):
             self.grid[x][y] = kolor
             resultTuple = self.checkRules(x, y)
-            if(resultTuple[0]):
+            if (resultTuple[0]):
                 for (x1, y1) in resultTuple[1]:
                     self.grid[x1][y1] = kolor
                 self.update()
@@ -79,9 +83,8 @@ class Reversi():
                 return False
 
     def checkRules(self, x, y):
-        fitsinboard = lambda x, y: (x < len(self.grid)
-                    and y < len(self.grid)
-                    and x >= 0 and y >= 0)
+        fitsinboard = lambda x, y: (len(self.grid) > x >= 0
+                                    and len(self.grid) > y >= 0)
         changingstones = list()
         result = False
         for dir in self.directions:
@@ -89,28 +92,28 @@ class Reversi():
             dx = dir[0]
             dy = dir[1]
             if fitsinboard(x + dx, y + dy):
-                while(True):
-                    if(self.grid[x + dx][y + dy] + self.grid[x][y] == 0):
-                        #print("different-color stone")
+                while (True):
+                    if (self.grid[x + dx][y + dy] + self.grid[x][y] == 0):
+                        # print("different-color stone")
                         tmplist.append((x + dx, y + dy))
                         dx += dir[0]
                         dy += dir[1]
                         if not fitsinboard(x + dx, y + dy):
                             break
                         if (self.grid[x + dx][y + dy] == self.grid[x][y]):
-                            #print("ended by same-color stone")
+                            # print("ended by same-color stone")
                             result = True
                             changingstones.extend(tmplist)
                             break
                         continue
-                    if(self.grid[x + dx][y + dy] == 0):
-                        #print("no neighbor")
+                    if (self.grid[x + dx][y + dy] == 0):
+                        # print("no neighbor")
                         break
                     if (self.grid[x + dx][y + dy] == self.grid[x][y]):
-                        #print("same-color neighbor")
+                        # print("same-color neighbor")
                         break
         return (result, changingstones)
 
     def showcursor(self, pos, kolor):
         (x, y) = self.getXYfromMousePos(pos)
-        #todo
+        # todo
