@@ -1,4 +1,4 @@
-
+#from Network import *
 from time import time
 import random
 import pickle
@@ -16,3 +16,7 @@ while not done:
         if event.type == pygame.MOUSEBUTTONUP:
             if(game.press(pygame.mouse.get_pos(), kolor)):
                 kolor *=-1
+                #invoke bot here
+        if event.type == pygame.MOUSEMOTION:
+            game.showcursor(pygame.mouse.get_pos(), kolor)
+
