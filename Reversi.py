@@ -125,6 +125,7 @@ class Reversi():
         self.finishFlags[self.botsColor] = 1
         if UMV.isDone(self.grid, self.botsColor) == False:
             self.finishFlags[self.botsColor] = 0
+            # TODO update changes after new cell from botPlayer
             self.grid = self.botPlayer.makeMove()
             self.curPlayer *= -1  # change player
         else:

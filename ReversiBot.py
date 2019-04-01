@@ -36,6 +36,7 @@ class ReversiBot():
                         bestGrid = self.min(bestGrid, v, player) if player == self.pColor \
                             else self.max(bestGrid, v, player)
         return bestGrid
+        #TODO save a moved what caused the most beneficial changes, not whole grid; save best score
 
     def countCells(self, grid, player):
         cellsNo = 0
@@ -46,7 +47,7 @@ class ReversiBot():
         return cellsNo
 
     def max(self, bestGrid, v, player):
-        return bestGrid if self.countCells(bestGrid[0], player) >= self.countCells(v[0], player) else v
+        return bestGrid if bestGrid[1] >= v[1] else v
 
     def min(self, bestGrid, v, player):
-        return bestGrid if self.countCells(bestGrid[0], player) <= self.countCells(v[0], player) else v
+        return bestGrid if bestGrid[1] <= v[1] else v
