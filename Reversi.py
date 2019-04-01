@@ -111,29 +111,38 @@ class Reversi():
 
     def eventController(self, event):
         if self.curPlayer == self.botsColor:
-            self.finishFlags[self.botsColor] = 1
-            if  UMV.isDone(self.grid, self.botsColor) == False:
-                self.finishFlags[self.botsColor] = 0
-                self.botPlayer.makeMove()
-                self.curPlayer *= -1  # change player
+            self.useBot()
+            self.update()
         else:
-            self.finishFlags[self.curPlayer] = 1
-            if UMV.isDone(self.grid, self.curPlayer) == False:
-                self.finishFlags[self.curPlayer] = 0
-                (x, y) = self.getXYfromMousePos(pygame.mouse.get_pos())
-                if event == pygame.MOUSEBUTTONUP:
-                    if(self.press(x, y)):
-                        self.curPlayer *= -1 # change player
-                if event == pygame.MOUSEMOTION:
-                    self.showcursor(x, y)
-            else:
-                self.curPlayer *= -1  # change player
+            self.playerMoves(event)
         if self.finishFlags[UMV.players["blueP"]] ==\
                 self.finishFlags[UMV.players["redP"]] ==\
                 self.finishFlags[self.curPlayer] == 1:
             print("Game finished")
 
 
+    def useBot(self):
+        self.finishFlags[self.botsColor] = 1
+        if UMV.isDone(self.grid, self.botsColor) == False:
+            self.finishFlags[self.botsColor] = 0
+            self.grid = self.botPlayer.makeMove()
+            self.curPlayer *= -1  # change player
+        else:
+            self.curPlayer *= -1  # change player
+
+
+    def playerMoves(self, event):
+        self.finishFlags[self.curPlayer] = 1
+        if UMV.isDone(self.grid, self.curPlayer) == False:
+            self.finishFlags[self.curPlayer] = 0
+            (x, y) = self.getXYfromMousePos(pygame.mouse.get_pos())
+            if event == pygame.MOUSEBUTTONUP:
+                if (self.press(x, y)):
+                    self.curPlayer *= -1  # change player
+            if event == pygame.MOUSEMOTION:
+                self.showcursor(x, y)
+        else:
+            self.curPlayer *= -1  # change player
 
     def Quit(self):
         #if player wants to end, set true...

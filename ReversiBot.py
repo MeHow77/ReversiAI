@@ -15,6 +15,7 @@ class ReversiBot():
     def makeMove(self):
         grid = self.minimax(self.grid, self.depth, self.bColor)
         self.grid = grid[0]
+        return self.grid
 
     def minimax(self, grid, depth, player):
         if depth == 0 or UMV.isDone(grid, player):
