@@ -26,14 +26,14 @@ class Reversi():
         self.drawboard()
         self.updatescreen()
         self.cursor = (0, 0)
-
+        self.finished = False
         self.finishFlags = {UMV.players["redP"] : 0,
                             UMV.players["blueP"]: 0}
 
         self.curPlayer = UMV.players["blueP"]
         self.botsColor = self.curPlayer * -1
 
-        depth = 4
+        depth = 1
         self.botPlayer = ReversiBot(self.grid, depth, self.botsColor, self.curPlayer)
 
 
@@ -90,8 +90,6 @@ class Reversi():
             else:
                 return False
 
-
-
     def showcursor(self, x, y):
         if (self.cursor != (x, y)) and\
                 UMV.fitsInBoard(self.grid, x, y)\
@@ -108,28 +106,27 @@ class Reversi():
             self.cursor = (x, y)
             pygame.display.flip()
 
-
-    def eventController(self, event):
-        if self.curPlayer == self.botsColor:
+    def twoBotsGame(self):
+        while not self.isGameFinished():
             self.useBot()
             self.updatescreen()
-        else:
-            self.playerMoves(event)
-        if self.finishFlags[UMV.players["blueP"]] ==\
-                self.finishFlags[UMV.players["redP"]] ==\
-                self.finishFlags[self.curPlayer] == 1:
-            print("Game finished")
 
+    def eventController(self, event):
+        if not self.isGameFinished():
+            if self.curPlayer == self.botsColor:
+                self.useBot()
+                self.updatescreen()
+            else:
+                self.playerMoves(event)
 
     def useBot(self):
-        self.finishFlags[self.botsColor] = 1
-        if UMV.isDone(self.grid, self.botsColor)[0] == False:
-            self.finishFlags[self.botsColor] = 0
-            self.grid = self.botPlayer.makeMove()
+        self.finishFlags[self.curPlayer] = 1
+        if UMV.isDone(self.grid, self.curPlayer)[0] == False:
+            self.finishFlags[self.curPlayer] = 0
+            self.grid = self.botPlayer.makeMove(self.curPlayer)
             self.curPlayer *= -1  # change player
         else:
             self.curPlayer *= -1  # change player
-
 
     def playerMoves(self, event):
         self.finishFlags[self.curPlayer] = 1
@@ -144,6 +141,25 @@ class Reversi():
         else:
             self.curPlayer *= -1  # change player
 
+    def isGameFinished(self):
+        if (self.finishFlags[UMV.players["blueP"]] == \
+        self.finishFlags[UMV.players["redP"]] == \
+        self.finishFlags[self.curPlayer] == 1):
+            self.finished = True
+        return self.finished
+
     def Quit(self):
         #if player wants to end, set true...
+        if self.finished:
+            print("Game finished")
+            if UMV.countCells(self.grid, UMV.players["redP"]) >\
+                UMV.countCells(self.grid, UMV.players["blueP"]):
+                print("Red wins")
+            else:
+                if UMV.countCells(self.grid, UMV.players["redP"]) < \
+                        UMV.countCells(self.grid, UMV.players["blueP"]):
+                    print("Blue wins")
+                else:
+                    print("Game tied")
+            return True
         return False

@@ -12,15 +12,15 @@ class ReversiBot():
         self.bColor = bColor
         self.pColor = pColor
 
-    def makeMove(self):
-        grid = self.minimax(self.grid, 0, self.bColor)
+    def makeMove(self, color):
+        grid = self.minimax(self.grid, 0, color)#self.bColor)
         self.grid = grid[0]
         return self.grid
 
     def minimax(self, grid, depth, player):
         allMoves =  UMV.isDone(grid, player)
         if depth == self.depth or allMoves[0]:
-            return grid, self.countCells(grid, player)
+            return grid, UMV.countCells(grid, player)
         allMoves = allMoves[1]
 
         (grid, cellsNo) = (grid, np.NINF if player == self.bColor else np.Inf)
@@ -40,13 +40,7 @@ class ReversiBot():
         else:
             return (grid, bestGrid[1])
 
-    def countCells(self, grid, player):
-        cellsNo = 0
-        for i in range(len(grid)):
-            for j in range(len(grid)):
-                if grid[i][j] == player:
-                    cellsNo += 1
-        return cellsNo
+
 
     def max(self, bestGrid, v, player):
         return bestGrid if bestGrid[1] >= v[1] else v

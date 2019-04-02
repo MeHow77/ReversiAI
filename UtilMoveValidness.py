@@ -55,3 +55,11 @@ def isDone(grid, player):
                     allMoves.append((result[1], row, col))
                     done = False
     return (done, allMoves)
+
+def countCells(grid, player):
+    cellsNo = 0
+    for i in range(len(grid)):
+        for j in range(len(grid)):
+            if grid[i][j] == player:
+                cellsNo += 1
+    return cellsNo
