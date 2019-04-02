@@ -18,25 +18,23 @@ class ReversiBot():
         return self.grid
 
     def minimax(self, grid, depth, player):
-        if depth == 0 or UMV.isDone(grid, player):
+        allMoves =  UMV.isDone(grid, player)
+        if depth == 0 or allMoves[0]:
             return grid, self.countCells(grid, player)
+        allMoves = allMoves[1]
 
         (grid, cellsNo) = (grid, np.NINF if player == self.bColor else np.Inf)
         bestGrid = (grid, cellsNo)
 
-        for i in range(len(grid)):
-            for j in range(len(grid)):
-                if grid[i][j] == UMV.emptyCell:
-                    result = UMV.checkRules(grid, i, j, player)
-                    if result[0]:
-                        newGrid = copy.deepcopy(grid)
-                        newGrid[i][j] = player
-                        for (x1, y1) in result[1]:
-                            newGrid[x1][y1] = player
-                        playerTmp = self.bColor if player == self.pColor else self.pColor
-                        v = self.minimax(newGrid, depth - 1, playerTmp)
-                        bestGrid = self.min(bestGrid, v, player) if player == self.pColor \
-                            else self.max(bestGrid, v, player)
+        for move in allMoves: #move is (tuples, x, y)
+            newGrid = copy.deepcopy(grid)
+            newGrid[move[1]][move[2]] = player
+            for (x1, y1) in move[0]:
+                newGrid[x1][y1] = player
+            playerTmp = self.bColor if player == self.pColor else self.pColor
+            v = self.minimax(newGrid, depth - 1, playerTmp)
+            bestGrid = self.min(bestGrid, v, player) if player == self.pColor \
+                else self.max(bestGrid, v, player)
         return bestGrid
 
     def countCells(self, grid, player):
