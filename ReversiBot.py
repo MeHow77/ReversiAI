@@ -12,42 +12,41 @@ class ReversiBot():
         self.bColor = bColor
         self.pColor = pColor
 
-    def makeMove(self):
-        grid = self.minimax(self.grid, self.depth, self.bColor)
+    def makeMove(self, color):
+        grid = self.minimax(self.grid, 0, color)#self.bColor)
         self.grid = grid[0]
         return self.grid
 
     def minimax(self, grid, depth, player):
-        if depth == 0 or UMV.isDone(grid, player):
-            return grid, self.countCells(grid, player)
+        allMoves =  UMV.isDone(grid, player)
+        if depth == self.depth or allMoves[0]:
+            return grid, UMV.countCells(grid, player)
+        allMoves = allMoves[1]
 
         (grid, cellsNo) = (grid, np.NINF if player == self.bColor else np.Inf)
         bestGrid = (grid, cellsNo)
 
-        for i in range(len(grid)):
-            for j in range(len(grid)):
-                if grid[i][j] == UMV.emptyCell:
-                    result = UMV.checkRules(grid, i, j, player)
-                    if result[0]:
-                        newGrid = copy.deepcopy(grid)
-                        newGrid[i][j] = player
-                        playerTmp = self.bColor if player == self.pColor else self.pColor
-                        v = self.minimax(newGrid, depth - 1, playerTmp)
-                        bestGrid = self.min(bestGrid, v, player) if player == self.pColor \
-                            else self.max(bestGrid, v, player)
-        return bestGrid
-        #TODO save a moved what caused the most beneficial changes, not whole grid; save best score
+        for move in allMoves: #move is (tuples, x, y)
+            newGrid = copy.deepcopy(grid)
+            newGrid[move[1]][move[2]] = player
+            for (x1, y1) in move[0]:
+                newGrid[x1][y1] = player
+            playerTmp = self.bColor if player == self.pColor else self.pColor
+            v = self.minimax(newGrid, depth + 1, playerTmp)
+            bestGrid = self.min(bestGrid, v, player) if player == self.pColor \
+                else self.max(bestGrid, v, player)
+        if depth == 0:
+            return bestGrid
+        else:
+            return (grid, bestGrid[1])
 
-    def countCells(self, grid, player):
-        cellsNo = 0
-        for i in range(len(grid)):
-            for j in range(len(grid)):
-                if grid[i][j] == player:
-                    cellsNo += 1
-        return cellsNo
+
 
     def max(self, bestGrid, v, player):
         return bestGrid if bestGrid[1] >= v[1] else v
+        #return bestGrid if self.countCells(bestGrid[0], player) >= self.countCells(v[0], player) else v
 
     def min(self, bestGrid, v, player):
         return bestGrid if bestGrid[1] <= v[1] else v
+        #return bestGrid if self.countCells(bestGrid[0], player) <= self.countCells(v[0], player) else v
+

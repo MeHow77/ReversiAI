@@ -44,13 +44,23 @@ def checkRules(grid, x, y, player):
     return result, changingstones
 
 def isDone(grid, player):
+    allMoves = list()
     size = len(grid)
+    done = True
     for row in range(size):
         for col in range(size):
             if grid[row][col] == emptyCell:
                 result = checkRules(grid, row, col, player)
                 if result[0]:
-                    return False
+                    allMoves.append((result[1], row, col))
+                    done = False
+    return (done, allMoves)
 
-    return True
+def countCells(grid, player):
+    cellsNo = 0
+    for i in range(len(grid)):
+        for j in range(len(grid)):
+            if grid[i][j] == player:
+                cellsNo += 1
+    return cellsNo
 
