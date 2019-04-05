@@ -1,13 +1,14 @@
 import pygame
 import UtilMoveValidness as UMV
 from ReversiBot import ReversiBot
-
+#from StaticBot import StaticBot
 
 class Reversi():
     screenwidth = 500
 
     def __init__(self, size):
         pygame.init()
+        self.size = size
         self.screen = pygame.display.set_mode((
             self.screenwidth, self.screenwidth))
         if (size % 2 == 1):
@@ -29,21 +30,19 @@ class Reversi():
         self.finished = False
         self.finishFlags = {UMV.players["redP"] : 0,
                             UMV.players["blueP"]: 0}
-
         self.curPlayer = UMV.players["blueP"]
         self.botsColor = self.curPlayer * -1
-
-        depth = 1
+        depth = 4
         self.botPlayer = ReversiBot(self.grid, depth, self.botsColor, self.curPlayer)
 
 
     def getXYfromMousePos(self, pos):
-        x = int(pos[0] / (self.screenwidth / len(self.grid)))
-        y = int(pos[1] / (self.screenwidth / len(self.grid)))
+        x = int(pos[0] / (self.screenwidth / self.size))
+        y = int(pos[1] / (self.screenwidth / self.size))
         return (x, y)
 
     def drawstone(self, color, x, y):
-        cellwidth = self.screenwidth / len(self.grid)
+        cellwidth = self.screenwidth / self.size
         stonewidth = int(cellwidth / 2)
         stonerad = int(stonewidth / 3) * 2
         pygame.draw.circle(self.screen,
@@ -81,9 +80,8 @@ class Reversi():
         if self.grid[x][y] == UMV.emptyCell:
             resultTuple = UMV.checkRules(self.grid, x, y, self.curPlayer)
             if (resultTuple[0]):
-                self.grid[x][y] = self.curPlayer
-                for (x1, y1) in resultTuple[1]:
-                    self.grid[x1][y1] = self.curPlayer
+                self.grid = resultTuple[1]
+                self.botPlayer.trimModel(self.grid)
                 self.updatescreen()
                 self.finishFlags[UMV.players["blueP"]] = 0 #player could move
                 return True
@@ -92,7 +90,7 @@ class Reversi():
 
     def showcursor(self, x, y):
         if (self.cursor != (x, y)) and\
-                UMV.fitsInBoard(self.grid, x, y)\
+                UMV.fitsInBoard(self.size, x, y)\
                 and (self.grid[x][y] == 0):
             i = self.cursor[0]
             j = self.cursor[1]
@@ -120,17 +118,18 @@ class Reversi():
                 self.playerMoves(event)
 
     def useBot(self):
-        self.finishFlags[self.curPlayer] = 1
-        if UMV.isDone(self.grid, self.curPlayer)[0] == False:
+        allMoves = UMV.isDone(self.grid, self.curPlayer)
+        if len(allMoves) != 0:
             self.finishFlags[self.curPlayer] = 0
-            self.grid = self.botPlayer.makeMove(self.curPlayer)
+            self.grid = self.botPlayer.makeMove(self.curPlayer, allMoves)
             self.curPlayer *= -1  # change player
         else:
+            self.finishFlags[self.curPlayer] = 1
             self.curPlayer *= -1  # change player
 
     def playerMoves(self, event):
-        self.finishFlags[self.curPlayer] = 1
-        if UMV.isDone(self.grid, self.curPlayer)[0] == False:
+        allMoves = UMV.isDone(self.grid, self.curPlayer)
+        if len(allMoves) != 0:
             self.finishFlags[self.curPlayer] = 0
             (x, y) = self.getXYfromMousePos(pygame.mouse.get_pos())
             if event == pygame.MOUSEBUTTONUP:
@@ -139,6 +138,7 @@ class Reversi():
             if event == pygame.MOUSEMOTION:
                 self.showcursor(x, y)
         else:
+            self.finishFlags[self.curPlayer] = 1
             self.curPlayer *= -1  # change player
 
     def isGameFinished(self):
@@ -151,13 +151,12 @@ class Reversi():
     def Quit(self):
         #if player wants to end, set true...
         if self.finished:
+            count = UMV.countCells(self.grid)
             print("Game finished")
-            if UMV.countCells(self.grid, UMV.players["redP"]) >\
-                UMV.countCells(self.grid, UMV.players["blueP"]):
+            if count < 0:
                 print("Red wins")
             else:
-                if UMV.countCells(self.grid, UMV.players["redP"]) < \
-                        UMV.countCells(self.grid, UMV.players["blueP"]):
+                if count > 0:
                     print("Blue wins")
                 else:
                     print("Game tied")
