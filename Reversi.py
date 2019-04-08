@@ -33,7 +33,7 @@ class Reversi():
         self.curPlayer = UMV.players["blueP"]
         self.botsColor = self.curPlayer * -1
 
-        depth = 1
+        depth = 2
         self.botPlayer = ReversiBot(self.grid, depth, self.botsColor, self.curPlayer)
 
 
