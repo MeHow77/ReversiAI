@@ -6,6 +6,7 @@ class StaticBot(ReversiBot):
     def __init__(self, grid, depth, bColor, pColor):
         super().__init__(grid, depth, bColor, pColor)
         self.model = list();
+        self.whosNext = pow(-1, self.depth)
         startList = [0, grid]
         self.buildMinimax(UMV.isDone(grid, pColor), startList, 0, pColor)
 
@@ -23,8 +24,18 @@ class StaticBot(ReversiBot):
 
     def minimax(self, grid, allMoves, depth, player):
         bestGrid = (self.model[0][1], np.NINF * player)
+        listofnextmoveworths = list()
         for branch in self.model:
-            v = (copy.copy(branch[2]), branch[0])
+            add = True
+            for each in listofnextmoveworths:
+                if each[0] == branch[2]:
+                    each = (branch[2],(each[1] + branch[0])/2)
+                    add = False
+                    break;
+            if add:
+                listofnextmoveworths.append((branch[2], branch[0]))
+        for val in listofnextmoveworths:
+            v = (copy.copy(val[0]), val[1])
             bestGrid = self.min(bestGrid, v, player)
         self.trimModel(bestGrid[0], player)
         return bestGrid[0]
@@ -33,14 +44,22 @@ class StaticBot(ReversiBot):
         tmp = list()
         for branch in self.model:
             if len(branch) == self.depth + 1:
-                moves = UMV.isDone(branch[self.depth], player * pow(-1, self.depth))
+                moves = UMV.isDone(branch[self.depth], player * self.whosNext)
                 for move in moves:  # move is (tuples, x, y)
                     tmplist = copy.copy(branch)
                     tmplist.append(move[0])
                     tmplist[0] = UMV.countCells(move[0])
                     tmp.append(tmplist)
                 if moves == []:
-                    tmp.append(branch)
+                    self.whosNext *= -1
+                    moves = UMV.isDone(branch[self.depth], player * self.whosNext)
+                    for move in moves:  # move is (tuples, x, y)
+                        tmplist = copy.copy(branch)
+                        tmplist.append(move[0])
+                        tmplist[0] = UMV.countCells(move[0])
+                        tmp.append(tmplist)
+                    if moves == []:
+                        tmp.append(branch)
             else:
                 tmp.append(branch)
         self.model = tmp

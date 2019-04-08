@@ -2,6 +2,7 @@ import pygame
 import UtilMoveValidness as UMV
 from ReversiBot import ReversiBot
 from StaticBot import StaticBot
+from NewBot import NewBot
 
 class Reversi():
     screenwidth = 500
