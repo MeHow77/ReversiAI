@@ -1,14 +1,25 @@
 from ReversiBot import *
 import UtilMoveValidness as UMV
+import numpy as np
 
-class StaticBot(ReversiBot):
+class StaticBot():
 
     def __init__(self, grid, depth, bColor, pColor):
-        super().__init__(grid, depth, bColor, pColor)
+        self.grid = grid
+        self.depth = depth
+        self.bColor = bColor
+        self.pColor = pColor
         self.model = list();
         self.whosNext = pow(-1, self.depth)
         startList = [0, grid]
         self.buildMinimax(UMV.isDone(grid, pColor), startList, 0, pColor)
+
+    def makeMove(self, color, allMoves):
+        self.grid = self.minimax(self.grid, allMoves, 0, color)
+        return self.grid
+
+    def min(self, bestGrid, v, player):
+        return bestGrid if bestGrid[1] * player >= v[1] * player else v
 
     def buildMinimax(self, allMoves, nowlist, depth, player):
         if depth == self.depth or len(allMoves) == 0:
@@ -28,7 +39,7 @@ class StaticBot(ReversiBot):
         for branch in self.model:
             add = True
             for each in listofnextmoveworths:
-                if each[0] == branch[2]:
+                if np.array_equal(each[0], branch[2]):
                     each = (branch[2],(each[1] + branch[0])/2)
                     add = False
                     break;
@@ -69,7 +80,7 @@ class StaticBot(ReversiBot):
         print(player)
         tmp = list()
         for branch in self.model:
-            if branch[2] == grid:
+            if np.array_equal(grid, branch[2]):
                 branch.pop(1)
                 tmp.append(branch)
         self.model = tmp

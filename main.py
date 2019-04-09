@@ -5,7 +5,7 @@ import pickle
 import UtilMoveValidness as UMV
 from Reversi import *
 
-game = Reversi(6)  # rozmiar planszy kwadratowej
+game = Reversi(8)  # rozmiar planszy kwadratowej
 clock = pygame.time.Clock()
 done = False
 
