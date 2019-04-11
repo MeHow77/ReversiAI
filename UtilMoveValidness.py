@@ -16,14 +16,12 @@ def checkRules(grid, x, y, player):
     size = grid.shape[0]
     result = False
     for dir in directions:
-        tmplist = list()
         dx = x + dir[0]
         dy = y + dir[1]
         if fitsInBoard(size, dx, dy):
             while (True):
                 if copiedGrid[dx][dy] + player == 0:
                     # print("different-color stone")
-                    tmplist.append((dx, dy))
                     dx += dir[0]
                     dy += dir[1]
                     if not fitsInBoard(size, dx, dy):
@@ -31,8 +29,7 @@ def checkRules(grid, x, y, player):
                     if copiedGrid[dx][dy] == player:
                         # print("ended by same-color stone")
                         result = True
-                        for (i, j) in tmplist:
-                            copiedGrid[i][j] = player
+                        flipCells((x, y), (dx, dy), dir, copiedGrid, player)
                         break
                     continue
                 if copiedGrid[dx][dy] == 0:
@@ -53,6 +50,18 @@ def isDone(grid, player):
                 if result[0]:
                     allMoves.append((result[1], row, col))
     return allMoves
+
+def flipCells(pPos, endPos, dir, grid, pColor):
+    if dir[0] == 0:
+        cellsToFlip = abs(pPos[1] - endPos[1]) - 1
+    else:
+        cellsToFlip = abs(pPos[0] - endPos[0]) - 1
+    x = pPos[0]
+    y = pPos[1]
+    for i in range(cellsToFlip):
+        x += dir[0]
+        y += dir[1]
+        grid[x][y] = pColor
 
 def countCells(grid):
     cellsNo = 0
