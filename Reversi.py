@@ -1,7 +1,8 @@
 import pygame
 import UtilMoveValidness as UMV
 from ReversiBot import ReversiBot
-#from StaticBot import StaticBot
+from StaticBot import StaticBot
+import numpy as np
 
 class Reversi():
     screenwidth = 500
@@ -13,12 +14,7 @@ class Reversi():
             self.screenwidth, self.screenwidth))
         if (size % 2 == 1):
             size += 1  # reversi wymaga parzystej ilości pól
-        self.grid = list()
-        for i in range(0, size):
-            row = list()
-            for j in range(0, size):
-                row.append(0)  # puste pole(0) czerwone(-1) niebieskie(1)
-            self.grid.append(row)
+        self.grid = np.zeros( (size, size) )
         index = int(size / 2)
         self.grid[index][index] = 1
         self.grid[index - 1][index - 1] = 1
@@ -32,8 +28,8 @@ class Reversi():
                             UMV.players["blueP"]: 0}
         self.curPlayer = UMV.players["blueP"]
         self.botsColor = self.curPlayer * -1
-        depth = 4
-        self.botPlayer = ReversiBot(self.grid, depth, self.botsColor, self.curPlayer)
+        self.depth = 4
+        self.botPlayer = ReversiBot(self.grid, self.depth, self.botsColor, self.curPlayer)
 
 
     def getXYfromMousePos(self, pos):
@@ -52,23 +48,23 @@ class Reversi():
                            stonerad, stonerad)
 
     def drawcell(self, color, x, y):
-        cellwidth = self.screenwidth / len(self.grid)
+        cellwidth = self.screenwidth / self.grid.shape[0]
         pygame.draw.rect(self.screen, color,
                          pygame.Rect(x * cellwidth, y * cellwidth,
                                      cellwidth, cellwidth))
 
     def drawboard(self):
         cells = 0
-        for i in range(0, len(self.grid)):
-            for j in range(0, len(self.grid)):
+        for i in range(0, self.grid.shape[0]):
+            for j in range(0, self.grid.shape[0]):
                 self.drawcell((255 * cells, 255 * cells, 255 * cells), i, j)
                 cells ^= 1
             cells ^= 1  # to żeby self.curPlayery pól były na przemian
         return None
 
     def updatescreen(self):
-        for i in range(0, len(self.grid)):
-            for j in range(0, len(self.grid)):
+        for i in range(0, self.grid.shape[0]):
+            for j in range(0, self.grid.shape[0]):
                 if self.grid[i][j] == -1:
                     self.drawstone((255, 0, 0), i, j)
                 if self.grid[i][j] == 1:
@@ -81,7 +77,7 @@ class Reversi():
             resultTuple = UMV.checkRules(self.grid, x, y, self.curPlayer)
             if (resultTuple[0]):
                 self.grid = resultTuple[1]
-                self.botPlayer.trimModel(self.grid)
+                self.botPlayer.trimModel(self.grid, self.curPlayer)
                 self.updatescreen()
                 self.finishFlags[UMV.players["blueP"]] = 0 #player could move
                 return True
@@ -161,4 +157,5 @@ class Reversi():
                 else:
                     print("Game tied")
             return True
+
         return False

@@ -7,7 +7,7 @@ from Reversi import *
 
 game = Reversi(8)  # rozmiar planszy kwadratowej
 clock = pygame.time.Clock()
-done = False
+done = Falsegit
 
 while not done:
     #clock.tick(20)
@@ -17,3 +17,4 @@ while not done:
             break
         #game.twoBotsGame()
         game.eventController(event.type)
+

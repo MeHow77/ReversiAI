@@ -1,4 +1,5 @@
 import copy
+import numpy as np
 
 directions = [(-1, 0), (-1, 1), (-1, -1), (0, -1),
               (0, 1), (1, 0), (1, -1), (1, 1)]  # listy kierunkowe są fajne
@@ -10,9 +11,9 @@ def fitsInBoard(length, x, y):
     return (length > x >= 0 and length > y >= 0)
 
 def checkRules(grid, x, y, player):
-    copiedGrid = copy.deepcopy(grid)
+    copiedGrid = grid.copy()
     copiedGrid[x][y] = player
-    size = len(grid)
+    size = grid.shape[0]
     result = False
     for dir in directions:
         tmplist = list()
@@ -44,7 +45,7 @@ def checkRules(grid, x, y, player):
 
 def isDone(grid, player):
     allMoves = list()
-    size = len(grid)
+    size = grid.shape[0]
     for row in range(0, size):
         for col in range(0, size):
             if grid[row][col] == emptyCell:
@@ -55,6 +56,7 @@ def isDone(grid, player):
 
 def countCells(grid):
     cellsNo = 0
-    for i in range(len(grid)):
+    for i in range(grid.shape[0]):
         cellsNo+=sum(grid[i])
+
     return cellsNo

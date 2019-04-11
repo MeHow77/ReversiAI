@@ -34,5 +34,6 @@ class ReversiBot():
         return bestGrid if bestGrid[1]*player >= v[1]*player else v
         #return bestGrid if self.countCells(bestGrid[0], player) <= self.countCells(v[0], player) else v
 
-    def trimModel(self, grid):
+    def trimModel(self, grid, player):
+
         pass
