@@ -7,7 +7,7 @@ from Reversi import *
 
 game = Reversi(8)  # rozmiar planszy kwadratowej
 clock = pygame.time.Clock()
-done = Falsegit
+done = False
 
 while not done:
     #clock.tick(20)
