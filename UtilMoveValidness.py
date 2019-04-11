@@ -7,8 +7,10 @@ directions = [(-1, 0), (-1, 1), (-1, -1), (0, -1),
 players = {"redP": -1, "blueP": 1}
 emptyCell = 0
 
+
 def fitsInBoard(length, x, y):
     return (length > x >= 0 and length > y >= 0)
+
 
 def checkRules(grid, x, y, player):
     copiedGrid = grid.copy()
@@ -40,6 +42,7 @@ def checkRules(grid, x, y, player):
                     break
     return result, copiedGrid
 
+
 def isDone(grid, player):
     allMoves = list()
     size = grid.shape[0]
@@ -50,6 +53,8 @@ def isDone(grid, player):
                 if result[0]:
                     allMoves.append((result[1], row, col))
     return allMoves
+
+
 
 def flipCells(pPos, endPos, dir, grid, pColor):
     if dir[0] == 0:
@@ -63,9 +68,9 @@ def flipCells(pPos, endPos, dir, grid, pColor):
         y += dir[1]
         grid[x][y] = pColor
 
+
 def countCells(grid):
     cellsNo = 0
     for i in range(grid.shape[0]):
-        cellsNo+=sum(grid[i])
-
+        cellsNo += sum(grid[i])
     return cellsNo

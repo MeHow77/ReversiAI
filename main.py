@@ -15,6 +15,6 @@ while not done:
         if event.type == pygame.QUIT or game.Quit():
             done = True
             break
-        game.twoBotsGame()
-        #game.eventController(event.type)
+        #game.twoBotsGame()
+        game.eventController(event.type)
 
