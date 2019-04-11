@@ -1,4 +1,3 @@
-
 # from Network import *
 from time import time
 import random
@@ -11,11 +10,10 @@ clock = pygame.time.Clock()
 done = False
 
 while not done:
-    clock.tick(20)
+    #clock.tick(20)
     for event in pygame.event.get():
         if event.type == pygame.QUIT or game.Quit():
             done = True
             break
-        game.twoBotsGame()
-        #game.eventController(event.type)
-
+        #game.twoBotsGame()
+        game.eventController(event.type)
