@@ -9,11 +9,11 @@ class Reversi():
 
     def __init__(self, size):
         pygame.init()
+        if (size % 2 == 1):
+            size += 1  # reversi wymaga parzystej ilości pól
         self.size = size
         self.screen = pygame.display.set_mode((
             self.screenwidth, self.screenwidth))
-        if (size % 2 == 1):
-            size += 1  # reversi wymaga parzystej ilości pól
         self.grid = np.zeros( (size, size) )
         index = int(size / 2)
         self.grid[index][index] = 1
