@@ -10,11 +10,11 @@ class Reversi():
 
     def __init__(self, size):
         pygame.init()
+        if (size % 2 == 1):
+            size += 1  # reversi wymaga parzystej ilości pól
         self.size = size
         self.screen = pygame.display.set_mode((
             self.screenwidth, self.screenwidth))
-        if (size % 2 == 1):
-            size += 1  # reversi wymaga parzystej ilości pól
         self.grid = np.zeros((size, size))
         index = int(size / 2)
         self.grid[index][index] = 1
@@ -76,7 +76,6 @@ class Reversi():
         for move in allMoves:
             if x == move[1] and y == move[2]: #if click is one of valid move
                 self.grid = move[0]
-                self.botPlayer.trimModel(self.grid, self.curPlayer)
                 self.updatescreen()
                 self.finishFlags[UMV.players["blueP"]] = 0  # player could move
                 return True
