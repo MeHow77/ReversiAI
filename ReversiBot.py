@@ -17,11 +17,8 @@ class ReversiBot():
         return self.grid
 
     def minimax(self, grid, allMoves, depth, player):
-        # Check whether such a grid was evaluated before
-        if self.wasGridEvaluated(grid) is False:
-            self.saveGrid(grid, allMoves, player)
         if depth == self.depth or len(allMoves) == 0:
-            return grid,  self.getEvaluation(grid)
+            return grid, self.evaluate(grid, allMoves, player)
 
         opp = player * -1
         bestGrid = (grid, np.Inf * player)
@@ -93,7 +90,7 @@ class ReversiBot():
         # we assume bot is always an maximazing player
         #but pMoves and player parameters are for optimazing calculation
         #TODO Check whether corners are the only possible move?
-        return 0.08*self.actualMobility(grid, pMoves, player) + 0.26*self.potentialMobility(grid) + 0.76*self.cornerValue(grid)
+        return 0.08*self.actualMobility(grid, pMoves, player) + 0.36*self.potentialMobility(grid) + 0.56*self.cornerValue(grid)
 
     def actualMobility(self, grid, pMoves, player):
         otherPlayerMovesNo = len(UMV.isDone(grid, player * -1))

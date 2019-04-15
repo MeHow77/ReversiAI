@@ -29,8 +29,10 @@ class Reversi():
                             UMV.players["blueP"]: 0}
         self.curPlayer = UMV.players["blueP"]
         self.botsColor = self.curPlayer * -1
-        self.depth = 3
-        self.botPlayer = ReversiBot(self.grid, self.depth, self.botsColor, self.curPlayer)
+        #fun part
+        self.depth = 5
+        self.botPlayer = HeuristicBot(self.grid, self.depth, self.botsColor,  self.curPlayer)
+
 
     def getXYfromMousePos(self, pos):
         x = int(pos[0] / (self.screenwidth / self.size))
@@ -97,10 +99,15 @@ class Reversi():
             self.cursor = (x, y)
             pygame.display.flip()
 
-    def twoBotsGame(self):
-        while not self.isGameFinished():
-            self.useBot()
-            self.updatescreen()
+    # def twoBotsGame(self):
+    #     while not self.isGameFinished():
+    #         if self.curPlayer == UMV.players['blueP']:
+    #             bot = self.normalBot
+    #         else:
+    #             bot = self.hBot
+    #         self.useBot(bot)
+    #         self.updatescreen()
+
 
     def eventController(self, event):
         if not self.isGameFinished():

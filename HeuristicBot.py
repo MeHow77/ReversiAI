@@ -16,39 +16,26 @@ class HeuristicBot(ReversiBot):
         if self.wasGridEvaluated(grid) is False:
             self.saveGrid(grid, allMoves, player)
         if depth == self.depth or len(allMoves) == 0:
-            return grid, self.getEvaluation(grid)
+            return grid,  self.getEvaluation(grid)
 
         opp = player * -1
-
-        if player == self.bColor:
-            bestGrid = grid, np.NINF
-            for move in allMoves:
-                newMoves = UMV.isDone(grid, opp)
-                otherGrid = self.alphaBeta(move[0], newMoves, depth + 1, opp, a, b)
-                value = max(bestGrid[1], otherGrid[1])
-                bestGrid, a = self.chooseGrid(bestGrid, otherGrid, player), max(a, value)
-                if a >= b:
-                    break
-            if depth == 0:
-                return bestGrid[0]  # return placed coins
-            else:
-                return grid, bestGrid[1]
+        bestGrid = (grid, np.Inf * player)
+        for move in allMoves:  # move is (grid, x, y)
+            newMoves = UMV.isDone(move[0], opp)
+            v = self.alphaBeta(move[0], newMoves, depth + 1, opp, a, b)
+            bestGrid, a, b = self.chooseGrid(bestGrid, v, player, a, b)
+            if a >= b:
+                break
+        if depth == 0:
+            return bestGrid[0]  # return placed coins
         else:
-            bestGrid = grid, np. PINF
-            for move in allMoves:
-                newMoves = UMV.isDone(grid, opp)
-                otherGrid = self.alphaBeta(move[0], newMoves, depth + 1, opp, a, b)
-                value = min(bestGrid[1], otherGrid[1])
-                bestGrid, a = self.chooseGrid(bestGrid, otherGrid, player), min(b, value)
-                if a >= b:
-                    break
-            if depth == 0:
-                return bestGrid[0]  # return placed coins
-            else:
-                return grid, bestGrid[1]
+            return grid, bestGrid[1]
 
-    def chooseGrid(self, grid1, grid2, player):
+    def chooseGrid(self, grid1, grid2, player, a, b):
         if player == self.bColor:
-            return grid1 if grid1[1] >= grid2[1] else grid2
+            retGrid =  grid1 if grid1[1] >= grid2[1] else grid2
+            a = max(grid1[1], grid2[1])
         else:
-            return grid1 if grid1[1] < grid2[1] else grid2
+            retGrid =  grid1 if grid1[1] < grid2[1] else grid2
+            b = min(grid1[1], grid2[1])
+        return retGrid, a, b
