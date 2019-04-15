@@ -1,6 +1,7 @@
 import pygame
 import UtilMoveValidness as UMV
 from ReversiBot import ReversiBot
+from HeuristicBot import HeuristicBot
 import numpy as np
 
 

@@ -40,7 +40,9 @@ class ReversiBot():
             return grid1 if grid1[1] >= grid2[1] else grid2
         else:
             return grid1 if grid1[1] < grid2[1] else grid2
-        # return bestGrid if self.countCells(bestGrid[0], player) <= self.countCells(v[0], player) else v
+
+
+
 
     def wasGridEvaluated(self, grid):
         return grid.tostring() in self.evaluatedGrids
@@ -91,7 +93,7 @@ class ReversiBot():
         # we assume bot is always an maximazing player
         #but pMoves and player parameters are for optimazing calculation
         #TODO Check whether corners are the only possible move?
-        return 0.08*self.actualMobility(grid, pMoves, player) + 0.36*self.potentialMobility(grid) + 0.56*self.cornerValue(grid)
+        return 0.08*self.actualMobility(grid, pMoves, player) + 0.26*self.potentialMobility(grid) + 0.76*self.cornerValue(grid)
 
     def actualMobility(self, grid, pMoves, player):
         otherPlayerMovesNo = len(UMV.isDone(grid, player * -1))
