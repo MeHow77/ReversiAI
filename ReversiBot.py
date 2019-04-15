@@ -24,11 +24,11 @@ class ReversiBot():
             return grid,  self.getEvalVal(grid)
 
         opp = player * -1
-        bestGrid = (grid, np.Inf * opp)
+        bestGrid = (grid, np.Inf * player)
         for move in allMoves:  # move is (grid, x, y)
             newMoves = UMV.isDone(move[0], opp)
             v = self.minimax(move[0], newMoves, depth + 1, opp)
-            bestGrid = self.min(bestGrid, v, opp)
+            bestGrid = self.min(bestGrid, v, player)
         if depth == 0:
             return bestGrid[0]  # return placed coins
         else:

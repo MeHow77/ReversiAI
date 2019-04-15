@@ -1,7 +1,6 @@
 import pygame
 import UtilMoveValidness as UMV
 from ReversiBot import ReversiBot
-from StaticBot import StaticBot
 import numpy as np
 
 
@@ -29,7 +28,7 @@ class Reversi():
                             UMV.players["blueP"]: 0}
         self.curPlayer = UMV.players["blueP"]
         self.botsColor = self.curPlayer * -1
-        self.depth = 4
+        self.depth = 3
         self.botPlayer = ReversiBot(self.grid, self.depth, self.botsColor, self.curPlayer)
 
     def getXYfromMousePos(self, pos):
