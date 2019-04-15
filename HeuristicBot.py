@@ -27,7 +27,7 @@ class HeuristicBot(ReversiBot):
             if a >= b:
                 break
         if depth == 0:
-            return bestGrid[0]  # return placed coins
+            return bestGrid[0]
         else:
             return grid, bestGrid[1]
 
