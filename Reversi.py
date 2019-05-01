@@ -121,7 +121,7 @@ class Reversi():
         allMoves = UMV.isDone(self.grid, self.curPlayer)
         if len(allMoves) != 0:
             self.finishFlags[self.curPlayer] = 0
-            self.grid = self.botPlayer.makeMove(self.curPlayer, allMoves)
+            self.grid = self.botPlayer.makeMove(self.grid, self.curPlayer, allMoves)
             self.curPlayer *= -1  # change player
         else:
             self.finishFlags[self.curPlayer] = 1

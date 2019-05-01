@@ -6,19 +6,17 @@ import UtilMoveValidness as UMV
 class ReversiBot():
 
     def __init__(self, grid, depth, bColor, pColor):
-        self.grid = grid
         self.depth = depth
         self.bColor = bColor
         self.pColor = pColor
-        self.evaluatedGrids = {}
 
-    def makeMove(self, color, allMoves):
-        self.grid = self.minimax(self.grid, allMoves, 0, color)
-        return self.grid
+    def makeMove(self, grid, color, allMoves):
+        return self.minimax(grid, allMoves, 0, color)
 
     def minimax(self, grid, allMoves, depth, player):
         if depth == self.depth or len(allMoves) == 0:
-            return grid, self.evaluate(grid, allMoves, player)
+            # always evaluate grid for bot, but use minimax for player or bot
+            return grid, self.evaluate(grid, allMoves, self.bColor)
 
         opp = player * -1
         bestGrid = (grid, np.Inf * player)
@@ -38,17 +36,6 @@ class ReversiBot():
         else:
             return grid1 if grid1[1] < grid2[1] else grid2
 
-
-
-
-    def wasGridEvaluated(self, grid):
-        return grid.tostring() in self.evaluatedGrids
-
-    def saveGrid(self, grid, playersMove, currPlayer):
-        self.evaluatedGrids[grid.tostring()] = self.evaluate(grid, playersMove, currPlayer)
-
-    def getEvaluation(self, grid):
-        return self.evaluatedGrids[grid.tostring()]
 
     def evaluate(self, grid, playersMove, player):
         return self.coinParity(grid) + self.mobility(grid, playersMove, player) + self.cornerValue(grid)
@@ -74,13 +61,13 @@ class ReversiBot():
                         maxPlayerCoins += V[i][j]
                     elif grid[i][j] == self.pColor:
                         minPlayerCoins += V[i][j]
-
-        for i in range(size):
-            for j in range(size):
-                if grid[i][j] == self.bColor:
-                    maxPlayerCoins += 1
-                elif grid[i][j] == self.pColor:
-                    minPlayerCoins += 1
+        else:
+            for i in range(size):
+                for j in range(size):
+                    if grid[i][j] == self.bColor:
+                        maxPlayerCoins += 1
+                    elif grid[i][j] == self.pColor:
+                        minPlayerCoins += 1
         if maxPlayerCoins + minPlayerCoins != 0:
             return 100 * (maxPlayerCoins - minPlayerCoins) / (maxPlayerCoins + minPlayerCoins)
         else:
