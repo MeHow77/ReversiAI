@@ -36,8 +36,9 @@ class ReversiBot():
         else:
             return grid1 if grid1[1] < grid2[1] else grid2
 
-
     def evaluate(self, grid, playersMove, player):
+        # we assume bot is always an maximazing player
+        # but pMoves and player parameters are for optimazing calculation
         return self.coinParity(grid) + self.mobility(grid, playersMove, player) + self.cornerValue(grid)
 
     def coinParity(self, grid):
@@ -74,10 +75,7 @@ class ReversiBot():
             return 0
 
     def mobility(self, grid, pMoves, player):
-        # we assume bot is always an maximazing player
-        #but pMoves and player parameters are for optimazing calculation
-        #TODO Check whether corners are the only possible move?
-        return 0.08*self.actualMobility(grid, pMoves, player) + 0.36*self.potentialMobility(grid) + 0.56*self.cornerValue(grid)
+        return self.actualMobility(grid, pMoves, player) + self.potentialMobility(grid)
 
     def actualMobility(self, grid, pMoves, player):
         otherPlayerMovesNo = len(UMV.isDone(grid, player * -1))
@@ -100,7 +98,6 @@ class ReversiBot():
                 if grid[i][j] == UMV.emptyCell:
                     left = 0
                     right = 0
-                    # check left and right cells for this cell
                     if i > 0:
                         left = grid[i - 1][j]
                     if i < size - 1:
@@ -119,9 +116,9 @@ class ReversiBot():
         maxPlayer = 0
         minPlayer = 0
         for corner in corners:
-            if corner == self.bColor: #maxPlayer
+            if corner == self.bColor:  # maxPlayer
                 maxPlayer += 1
-            elif corner == self.pColor: #minPlayer
+            elif corner == self.pColor:  # minPlayer
                 minPlayer += 1
 
         if maxPlayer + minPlayer == 0:
@@ -129,25 +126,89 @@ class ReversiBot():
         else:
             return 100 * (maxPlayer - minPlayer) / (maxPlayer + minPlayer)
 
-    def stability(self, grid):
+    def stability(self, grid, oppMoves):
+        # TODO to debug print stablePcs during game in console
         maxPlayer = 0
         minPlayer = 0
         size = len(grid)
+        unstablePcs = {}
+        stablePcs = {}
+        fullRows = []
+        pcsNo = 0
+
+        # find full rows
         for i in range(size):
             for j in range(size):
+                if grid[i][j] == UMV.emptyCell:
+                    break
+            fullRows.append(i)
+
+        # one possible way to check unstablity
+        # # is (y,x) stable?
+        # for y in fullRows:
+        #     for x in range(size):
+        #         stabilityFlag = 1
+        #         for dir in UMV.directions:
+        #             # checking a row is unecessary
+        #             if dir == (-1, 0) or dir == (1, 0):
+        #                 continue
+        #
+        #             dx = x + dir[0]
+        #             dy = y + dir[1]
+        #             while UMV.fitsInBoard(size, dx, dy):
+        #                 # if row isn't full but can't be flanked then still can be stable
+                          # isFlankable was changed a little
+        #                 if grid[dy][dx] == UMV.emptyCell and self.isFlankable(grid, x, y, size, dir):
+        #                     stabilityFlag = 0
+        #                     break
+        #             if stabilityFlag == 0:
+        #                 break
+        #         if stabilityFlag == 1:
+        #             stablePcs[str(y) + ',' + str(x)] = grid[y][x]
+
+        # for each possible move save unique unstable piece with its owner
+        # for move in oppMoves:
+        #     for i in range(size):
+        #         for j in range(size):
+        #             if move[i][j] != grid[i][j]:
+        #                 index = str(i) + ',' + str(j)
+        #                 if index not in unstablePcs:
+        #                     unstablePcs[index] = grid[i][j]
+
+        #other possible way to check
+        for i in range(size):
+            for j in range(size):
+                stabilityFlag = 1
+                if grid[i][j] != UMV.emptyCell:
+                    pcsNo += 1
+                    index = str(i) + ',' + str(j)
+                    if self.isFlankable(grid, j, i, size):
+                        unstablePcs[index] = grid[i][j]
+                    else:
+                        stablePcs[index] = grid[i][j]
+
+        for i in range(size):
+            for j in range(size):
+                index = str(i) + ',' + str(j)
                 if grid[i][j] == self.bColor:
-                    maxPlayer += self.calcStability(grid[i][j], self.bColor)
+                    if index in stablePcs:
+                        maxPlayer += 1
+                    elif index in unstablePcs:
+                        maxPlayer -= 1
                 elif grid[i][j] == self.pColor:
-                    minPlayer += self.calcStability(grid[i][j], self.pColor)
+                    if index in stablePcs:
+                        minPlayer += 1
+                    elif index in unstablePcs:
+                        minPlayer -= 1
+        return 100 * (maxPlayer - minPlayer) / pcsNo
 
-    def calcStability(self, cell, player):
-        return 0
-
-
-
-
-
-
-
-
-
+    def isFlankable(self, grid, x, y, size):
+        for dir in UMV.directions:
+            dx_opp = x
+            dy_opp = y
+            while UMV.fitsInBoard(size, dx_opp, dy_opp):
+                if grid[dy_opp][dx_opp] == grid[y][x] * -1 or grid[dy_opp][dx_opp] == UMV.emptyCell:
+                    return True
+                else:
+                    dx_opp += dir[0]
+                    dy_opp += dir[1]
