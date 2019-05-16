@@ -128,8 +128,8 @@ class ReversiBot():
 
     def stability(self, grid, oppMoves):
         # TODO to debug print stablePcs during game in console
-        maxPlayer = 0
-        minPlayer = 0
+        maxPlayer = [0]
+        minPlayer = [0]
         size = len(grid)
         unstablePcs = {}
         stablePcs = {}
@@ -178,7 +178,6 @@ class ReversiBot():
         #other possible way to check
         for i in range(size):
             for j in range(size):
-                stabilityFlag = 1
                 if grid[i][j] != UMV.emptyCell:
                     pcsNo += 1
                     index = str(i) + ',' + str(j)
@@ -192,14 +191,10 @@ class ReversiBot():
                 index = str(i) + ',' + str(j)
                 if grid[i][j] == self.bColor:
                     if index in stablePcs:
-                        maxPlayer += 1
+                        self.inc(maxPlayer) if grid[i][j] == self.bColor else self.dec(minPlayer)
                     elif index in unstablePcs:
                         maxPlayer -= 1
-                elif grid[i][j] == self.pColor:
-                    if index in stablePcs:
-                        minPlayer += 1
-                    elif index in unstablePcs:
-                        minPlayer -= 1
+
         return 100 * (maxPlayer - minPlayer) / pcsNo
 
     def isFlankable(self, grid, x, y, size):
@@ -212,3 +207,8 @@ class ReversiBot():
                 else:
                     dx_opp += dir[0]
                     dy_opp += dir[1]
+
+    def inc(self, val):
+        val[0] = val[0] + 1
+    def dec(self, val):
+        val[0] = val[0] - 1
