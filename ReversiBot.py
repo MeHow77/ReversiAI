@@ -39,7 +39,7 @@ class ReversiBot():
     def evaluate(self, grid, playersMove, player):
         # we assume bot is always an maximazing player
         # but pMoves and player parameters are for optimazing calculation
-        return self.coinParity(grid) + self.mobility(grid, playersMove, player) + self.cornerValue(grid)
+        return self.stability(grid, playersMove)
 
     def coinParity(self, grid):
         maxPlayerCoins = 0
@@ -191,9 +191,9 @@ class ReversiBot():
                 index = str(i) + ',' + str(j)
                 if grid[i][j] == self.bColor:
                     if index in stablePcs:
-                        self.inc(maxPlayer) if grid[i][j] == self.bColor else self.dec(minPlayer)
+                        self.inc(maxPlayer) if grid[i][j] == self.bColor else self.inc(minPlayer)
                     elif index in unstablePcs:
-                        maxPlayer -= 1
+                        self.dec(maxPlayer) if grid[i][j] == self.bColor else self.dec(minPlayer)
 
         return 100 * (maxPlayer - minPlayer) / pcsNo
 
