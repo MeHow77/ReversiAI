@@ -195,7 +195,7 @@ class ReversiBot():
                     elif index in unstablePcs:
                         self.dec(maxPlayer) if grid[i][j] == self.bColor else self.dec(minPlayer)
 
-        return 100 * (maxPlayer - minPlayer) / pcsNo
+        return 100 * (maxPlayer[0] - minPlayer[0]) / pcsNo
 
     def isFlankable(self, grid, x, y, size):
         for dir in UMV.directions:
