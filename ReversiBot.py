@@ -139,9 +139,10 @@ class ReversiBot():
                           (size-2, 0), (size - 1, size - 1), (1, size - 1),
                           (size - 1, size - 2), (size - 2, size - 1), (size - 1, size - 1)]
         startFlag = 0
-        for corner in pausingFields:
-            if grid[corner[1]][corner[0]] != 0:
+        for field in pausingFields:
+            if grid[field[0]][field[1]] != 0:
                 startFlag = 1
+                break
         if startFlag == 0:
             return 0
 
@@ -165,7 +166,6 @@ class ReversiBot():
         return 100 * (maxPlayer[0] - minPlayer[0]) / pcsNo
 
     def saveWall(self, corner, grid, dir, stablePcs):
-        try:
             x = corner[1]
             y = corner[0]
             corner_val = grid[corner[0]][corner[1]]
@@ -194,12 +194,10 @@ class ReversiBot():
                 y = corner[0]
                 for i in range(len(grid)):
                     index = str(y) + str(x)
-                    if index not in stablePcs[index]:
+                    if index not in stablePcs:
                         stablePcs[index] = corner_val
                     x += dir[1]
                     y += dir[0]
-        except:
-            print(x, y)
 
 
     def calcStability(self, grid, x, y, stablePcs, prevColor):
