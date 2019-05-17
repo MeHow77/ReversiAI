@@ -29,7 +29,6 @@ class ReversiBot():
         else:
             return grid, bestGrid[1]
 
-    # TODO Evaluation f: stability
     def min(self, grid1, grid2, player):
         if player == self.bColor:
             return grid1 if grid1[1] >= grid2[1] else grid2
@@ -39,7 +38,8 @@ class ReversiBot():
     def evaluate(self, grid, playersMove, player):
         # we assume bot is always an maximazing player
         # but pMoves and player parameters are for optimazing calculation
-        return self.stability(grid, playersMove)
+        return self.coinParity(grid) + self.mobility(grid, playersMove,player) +\
+               self.cornerValue(grid) + self.stability(grid)
 
     def coinParity(self, grid):
         maxPlayerCoins = 0
@@ -112,7 +112,8 @@ class ReversiBot():
             return 100 * (maxPlayer - minPlayer) / (maxPlayer + minPlayer)
 
     def cornerValue(self, grid):
-        corners = [grid[0][0], grid[0][7], grid[7][0], grid[7][7]]
+        size = len(grid)
+        corners = [grid[0][0], grid[0][size-1], grid[size-1][0], grid[size-1][7]]
         maxPlayer = 0
         minPlayer = 0
         for corner in corners:
@@ -126,89 +127,115 @@ class ReversiBot():
         else:
             return 100 * (maxPlayer - minPlayer) / (maxPlayer + minPlayer)
 
-    def stability(self, grid, oppMoves):
-        # TODO to debug print stablePcs during game in console
-        maxPlayer = [0]
-        minPlayer = [0]
+    def stability(self, grid):
         size = len(grid)
-        unstablePcs = {}
+        minPlayer = [0]
+        maxPlayer = [0]
         stablePcs = {}
-        fullRows = []
         pcsNo = 0
+        #performance "trick" for early game
+        pausingFields = [(0, 0), (0, 1), (1, 0),
+                          (0, size - 1), (0, size - 2), (1, size - 1),
+                          (size-2, 0), (size - 1, size - 1), (1, size - 1),
+                          (size - 1, size - 2), (size - 2, size - 1), (size - 1, size - 1)]
+        startFlag = 0
+        for corner in pausingFields:
+            if grid[corner[1]][corner[0]] != 0:
+                startFlag = 1
+        if startFlag == 0:
+            return 0
 
-        # find full rows
-        for i in range(size):
-            for j in range(size):
-                if grid[i][j] == UMV.emptyCell:
-                    break
-            fullRows.append(i)
+        corners = [(0, 0, (1, 0), (0, 1)), (size - 1, 0, (0, 1), (-1, 0)),
+                   (0, size - 1, (0, -1), (1, 0)), (size - 1, size - 1, (-1, 0), (0, -1))]
+        #check walls and save stable pieces for performance
+        for corner in corners:
+            if grid[corner[0]][corner[1]] != UMV.emptyCell:
+                self.saveWall(corner, grid, corner[2], stablePcs)
+                self.saveWall(corner, grid, corner[3], stablePcs)
 
-        # one possible way to check unstablity
-        # # is (y,x) stable?
-        # for y in fullRows:
-        #     for x in range(size):
-        #         stabilityFlag = 1
-        #         for dir in UMV.directions:
-        #             # checking a row is unecessary
-        #             if dir == (-1, 0) or dir == (1, 0):
-        #                 continue
-        #
-        #             dx = x + dir[0]
-        #             dy = y + dir[1]
-        #             while UMV.fitsInBoard(size, dx, dy):
-        #                 # if row isn't full but can't be flanked then still can be stable
-                          # isFlankable was changed a little
-        #                 if grid[dy][dx] == UMV.emptyCell and self.isFlankable(grid, x, y, size, dir):
-        #                     stabilityFlag = 0
-        #                     break
-        #             if stabilityFlag == 0:
-        #                 break
-        #         if stabilityFlag == 1:
-        #             stablePcs[str(y) + ',' + str(x)] = grid[y][x]
-
-        # for each possible move save unique unstable piece with its owner
-        # for move in oppMoves:
-        #     for i in range(size):
-        #         for j in range(size):
-        #             if move[i][j] != grid[i][j]:
-        #                 index = str(i) + ',' + str(j)
-        #                 if index not in unstablePcs:
-        #                     unstablePcs[index] = grid[i][j]
-
-        #other possible way to check
         for i in range(size):
             for j in range(size):
                 if grid[i][j] != UMV.emptyCell:
                     pcsNo += 1
-                    index = str(i) + ',' + str(j)
-                    if self.isFlankable(grid, j, i, size):
-                        unstablePcs[index] = grid[i][j]
+                    if self.calcStability(grid, j, i, stablePcs, grid[i][j]):
+                        self.inc(maxPlayer) if grid[i][j] == self.pColor else self.inc(minPlayer)
                     else:
-                        stablePcs[index] = grid[i][j]
-
-        for i in range(size):
-            for j in range(size):
-                index = str(i) + ',' + str(j)
-                if grid[i][j] == self.bColor:
-                    if index in stablePcs:
-                        self.inc(maxPlayer) if grid[i][j] == self.bColor else self.inc(minPlayer)
-                    elif index in unstablePcs:
-                        self.dec(maxPlayer) if grid[i][j] == self.bColor else self.dec(minPlayer)
+                        self.dec(maxPlayer) if grid[i][j] == self.pColor else self.dec(minPlayer)
 
         return 100 * (maxPlayer[0] - minPlayer[0]) / pcsNo
 
-    def isFlankable(self, grid, x, y, size):
-        for dir in UMV.directions:
-            dx_opp = x
-            dy_opp = y
-            while UMV.fitsInBoard(size, dx_opp, dy_opp):
-                if grid[dy_opp][dx_opp] == grid[y][x] * -1 or grid[dy_opp][dx_opp] == UMV.emptyCell:
-                    return True
+    def saveWall(self, corner, grid, dir, stablePcs):
+        try:
+            x = corner[1]
+            y = corner[0]
+            corner_val = grid[corner[0]][corner[1]]
+            for i in range(len(grid)):
+                if grid[y][x] == corner_val:
+                    index = str(y) + str(x)
+                    if index not in stablePcs:
+                        stablePcs[index] = corner_val
+                    x += dir[1]
+                    y += dir[0]
                 else:
-                    dx_opp += dir[0]
-                    dy_opp += dir[1]
+                    break
+
+            x = corner[1]
+            y = corner[0]
+            fullWallFlag = 1
+            for i in range(len(grid)):
+                if grid[y][x] == UMV.emptyCell:
+                    fullWallFlag = 0
+                    break
+                x += dir[1]
+                y += dir[0]
+
+            if fullWallFlag == 1:
+                x = corner[1]
+                y = corner[0]
+                for i in range(len(grid)):
+                    index = str(y) + str(x)
+                    if index not in stablePcs[index]:
+                        stablePcs[index] = corner_val
+                    x += dir[1]
+                    y += dir[0]
+        except:
+            print(x, y)
+
+
+    def calcStability(self, grid, x, y, stablePcs, prevColor):
+        if str(y) + str(x) in stablePcs:
+            return True
+        size = len(grid)
+        if UMV.fitsInBoard(size, x, y) is False:
+            return True
+        if grid[y][x] == UMV.emptyCell:
+            return False
+        if grid[y][x] != prevColor:
+            return False
+
+        stablePc = 1
+        for dir in UMV.directions:
+            dx = x
+            dy = y
+            while(True):
+                dx += dir[1]
+                dy += dir[0]
+                if UMV.fitsInBoard(size, dx, dy) is False:
+                    break
+                if grid[dy][dx] == UMV.emptyCell:
+                    stablePc = 0
+                    if self.calcStability(grid, x - dir[0], y - dir[1], stablePcs, prevColor):
+                        stablePc = 1
+                    else:
+                        break
+            if stablePc == 0:
+                return False
+            else:
+                stablePcs[str(y) + str(x)] = grid[y][x]
+                return True
 
     def inc(self, val):
         val[0] = val[0] + 1
+
     def dec(self, val):
         val[0] = val[0] - 1
