@@ -20,7 +20,7 @@ class Menu():
     #BOXES
     #size_up_button
     #RETURINNG VALUES
-    size = "10"
+    size = 8
     play = False
 
     def getSize(self):
@@ -38,6 +38,7 @@ class Menu():
         #FONTS
         self.largeFont2 = pg.font.SysFont("comicsansms", 72)
         self.font = pg.font.Font("./fonts/Roboto-Black.ttf", 26)
+        self.littleFont = pg.font.Font("./fonts/Roboto-Black.ttf", 20)
 
         #TEXTS
         self.titleText = self.largeFont2.render("ReverSI", True, self.blue)
@@ -49,9 +50,13 @@ class Menu():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
-                # if event.type == pg.MOUSEBUTTONDOWN:
-                #     if self.size_up_button.collidepoint(event.pos):
-                #         pass
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if size_up_button.collidepoint(event.pos):
+                        if self.size < 98:
+                            self.size += 2
+                    if size_down_button.collidepoint(event.pos):
+                        if self.size > 2:
+                            self.size -= 2
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_SPACE:
                         self.play = True
@@ -69,12 +74,23 @@ class Menu():
             self.screen.blit(self.sizeText, (self.screenwidth//2 - self.sizeText.get_width()//2, 120))
             #draw size_box + size on it
             pg.draw.rect(self.screen, self.green, pg.Rect(self.screenwidth//2 + self.sizeText.get_width()//2,120,40,self.sizeText.get_height()),2)
-            self.text = self.font.render(self.size,True,self.green)
+            self.text = self.font.render(str(self.size),True,self.green)
             self.screen.blit(self.text, (self.screenwidth//2 + self.sizeText.get_width()//2 + 5,120))
             #draw buttons for size
+            xDistance = self.screenwidth//2 + self.sizeText.get_width() + 20
+            pg.draw.rect(self.screen, self.green, pg.Rect(xDistance,120,40,self.sizeText.get_height()//2-1))
+            pg.draw.rect(self.screen, self.green, pg.Rect(xDistance,120+self.sizeText.get_height()//2+1,40,self.sizeText.get_height()//2-1))
+            self.text = self.littleFont.render("+", True, self.red)
+            self.screen.blit(self.text, (xDistance + self.text.get_width() + 3, 116))
+            self.text = self.littleFont.render("-", True, self.red)
+            self.screen.blit(self.text, (xDistance + self.text.get_width() + 6, 114+self.sizeText.get_height()//2+1))
+            #calculate boxes
+            size_up_button = pg.Rect(xDistance,120,40,self.sizeText.get_height()//2-1)
+            size_down_button =  pg.Rect(xDistance,120+self.sizeText.get_height()//2+1,40,self.sizeText.get_height()//2-1)
 
-
-
+            #DEBUG INSTRUCTION
+            self.text = self.font.render("Press space to play", True, self.red)
+            self.screen.blit(self.text,(self.screenwidth//2 - self.text.get_width()//2, self.screenwidth//2))
 
             # self.screen.blit(self.txt_surface, (self.size_input_box.x + 5, self.size_input_box.y + 5))
             # pg.draw.rect(self.screen, self.size_color, self.size_input_box, 2)
