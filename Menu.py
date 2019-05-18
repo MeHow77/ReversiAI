@@ -17,8 +17,10 @@ class Menu():
     color_active = pg.Color('dodgerblue2')
     #COLOR VARIABLES
     size_color = color_active
+    #BOXES
+    #size_up_button
     #RETURINNG VALUES
-    size = '6'
+    size = "10"
     play = False
 
     def getSize(self):
@@ -47,18 +49,15 @@ class Menu():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
-                if event.type == pg.MOUSEBUTTONDOWN:
-                    if self.size_input_box.collidepoint(event.pos):
-                        pass
+                # if event.type == pg.MOUSEBUTTONDOWN:
+                #     if self.size_up_button.collidepoint(event.pos):
+                #         pass
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_SPACE:
                         self.play = True
                         running = False
 
-
-
             self.screen.fill(self.background_color)
-
             # draw Reversi icons
             pg.draw.circle(self.screen, self.red,(45, 45),20)
             pg.draw.circle(self.screen, self.blue,(100, 45),20)
@@ -67,10 +66,17 @@ class Menu():
             #draw ReverSI
             self.screen.blit(self.titleText, (self.screenwidth // 2 - self.titleText.get_width() // 2 + 50, 20))
             #draw "Size: "
-            self.screen.blit(self.sizeText, (self.screenwidth//2, 200))
-            #draw 
-            pg.draw.rect(self.screen, self.green, self.size_input_box)
-            self.screen.blit(self.txt_surface, (self.size_input_box.x + 5, self.size_input_box.y + 5))
-            pg.draw.rect(self.screen, self.size_color, self.size_input_box, 2)
+            self.screen.blit(self.sizeText, (self.screenwidth//2 - self.sizeText.get_width()//2, 120))
+            #draw size_box + size on it
+            pg.draw.rect(self.screen, self.green, pg.Rect(self.screenwidth//2 + self.sizeText.get_width()//2,120,40,self.sizeText.get_height()),2)
+            self.text = self.font.render(self.size,True,self.green)
+            self.screen.blit(self.text, (self.screenwidth//2 + self.sizeText.get_width()//2 + 5,120))
+            #draw buttons for size
+
+
+
+
+            # self.screen.blit(self.txt_surface, (self.size_input_box.x + 5, self.size_input_box.y + 5))
+            # pg.draw.rect(self.screen, self.size_color, self.size_input_box, 2)
 
             pg.display.update()
