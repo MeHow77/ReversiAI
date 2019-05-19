@@ -1,14 +1,17 @@
 import pygame
 import UtilMoveValidness as UMV
-from ReversiBot import ReversiBot
+from Player import Player
+from HumanPlayer import HumanPlayer
 from HeuristicBot import HeuristicBot
+from ReversiBot import ReversiBot
+
 import numpy as np
 
 
 class Reversi():
     screenwidth = 500
 
-    def __init__(self, size):
+    def __init__(self, size, player1, player2):
         pygame.init()
         if (size % 2 == 1):
             size += 1  # reversi wymaga parzystej ilości pól
@@ -17,10 +20,12 @@ class Reversi():
             self.screenwidth, self.screenwidth))
         self.grid = np.zeros((size, size))
         index = int(size / 2)
+        # init first 4 piecies
         self.grid[index][index] = 1
         self.grid[index - 1][index - 1] = 1
         self.grid[index][index - 1] = -1
-        self.grid[index - 1][index] = -1  # te cztery na środku
+        self.grid[index - 1][index] = -1
+
         self.drawboard()
         self.updatescreen()
         self.cursor = (0, 0)
@@ -28,11 +33,12 @@ class Reversi():
         self.finishFlags = {UMV.players["redP"]: 0,
                             UMV.players["blueP"]: 0}
         self.curPlayer = UMV.players["blueP"]
-        self.botsColor = self.curPlayer * -1
-        #fun part
-        self.depth = 5
-        self.botPlayer = HeuristicBot(self.grid, self.depth, self.botsColor,  self.curPlayer)
 
+        self.player1 = player1
+        self.player2 = player2
+
+        self.player1.setColors(self.curPlayer, self.curPlayer * -1)
+        self.player2.setColors(self.player1.getEnemyColor(), self.player1.getOwnColor())
 
     def getXYfromMousePos(self, pos):
         x = int(pos[0] / (self.screenwidth / self.size))
@@ -76,10 +82,10 @@ class Reversi():
 
     def press(self, x, y, allMoves):
         for move in allMoves:
-            if x == move[1] and y == move[2]: #if click is one of valid move
+            if x == move[1] and y == move[2]:  # if click is one of valid move
                 self.grid = move[0]
                 self.updatescreen()
-                self.finishFlags[UMV.players["blueP"]] = 0  # player could move
+                self.finishFlags[self.curPlayer] = 0  # player could move
                 return True
         return False
 
@@ -99,33 +105,32 @@ class Reversi():
             self.cursor = (x, y)
             pygame.display.flip()
 
-    # def twoBotsGame(self):
-    #     while not self.isGameFinished():
-    #         if self.curPlayer == UMV.players['blueP']:
-    #             bot = self.normalBot
-    #         else:
-    #             bot = self.hBot
-    #         self.useBot(bot)
-    #         self.updatescreen()
-
 
     def eventController(self, event):
         if not self.isGameFinished():
-            if self.curPlayer == self.botsColor:
-                self.useBot()
-                self.updatescreen()
+            if self.curPlayer == self.player1.getOwnColor():
+                if isinstance(self.player1, HumanPlayer):
+                    self.playerMoves(event)
+                else:
+                    self.useBot(self.player1)
             else:
-                self.playerMoves(event)
+                if isinstance(self.player2, HumanPlayer):
+                    self.playerMoves(event)
+                else:
+                    self.useBot(self.player2)
 
-    def useBot(self):
+
+
+    def  useBot(self, bot):
         allMoves = UMV.isDone(self.grid, self.curPlayer)
         if len(allMoves) != 0:
             self.finishFlags[self.curPlayer] = 0
-            self.grid = self.botPlayer.makeMove(self.grid, self.curPlayer, allMoves)
+            self.grid = bot.makeMove(self.grid,  allMoves)
             self.curPlayer *= -1  # change player
         else:
             self.finishFlags[self.curPlayer] = 1
             self.curPlayer *= -1  # change player
+        self.updatescreen()
 
     def playerMoves(self, event):
         allMoves = UMV.isDone(self.grid, self.curPlayer)
@@ -143,8 +148,7 @@ class Reversi():
 
     def isGameFinished(self):
         if (self.finishFlags[UMV.players["blueP"]] == \
-                self.finishFlags[UMV.players["redP"]] == \
-                self.finishFlags[self.curPlayer] == 1):
+                self.finishFlags[UMV.players["redP"]] == 1):
             self.finished = True
         return self.finished
 
@@ -163,4 +167,3 @@ class Reversi():
             return True
 
         return False
-

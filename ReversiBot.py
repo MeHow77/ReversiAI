@@ -1,25 +1,26 @@
 import copy
 import numpy as np
 import UtilMoveValidness as UMV
+from Player import Player
 
+class ReversiBot(Player):
 
-class ReversiBot():
-
-    def __init__(self, grid, depth, bColor, pColor):
+    def __init__(self, depth, weights):
+        super().__init__()
         self.depth = depth
-        self.bColor = bColor
-        self.pColor = pColor
+        self.weights = weights
 
-    def makeMove(self, grid, color, allMoves):
-        return self.minimax(grid, allMoves, 0, color)
+
+    def makeMove(self, grid, allMoves):
+        return self.minimax(grid, allMoves, 0, self.ownColor)
 
     def minimax(self, grid, allMoves, depth, player):
         if depth == self.depth or len(allMoves) == 0:
             # always evaluate grid for bot, but use minimax for player or bot
-            return grid, self.evaluate(grid, allMoves, self.bColor)
+            return grid, self.evaluate(grid, allMoves, self.ownColor)
 
         opp = player * -1
-        bestGrid = (grid, np.Inf * player)
+        bestGrid = (grid, np.NINF*self.ownColor * player)
         for move in allMoves:  # move is (grid, x, y)
             newMoves = UMV.isDone(move[0], opp)
             v = self.minimax(move[0], newMoves, depth + 1, opp)
@@ -29,16 +30,21 @@ class ReversiBot():
         else:
             return grid, bestGrid[1]
 
-    # TODO Evaluation f: stability
     def min(self, grid1, grid2, player):
-        if player == self.bColor:
+        if player == self.ownColor:
             return grid1 if grid1[1] >= grid2[1] else grid2
         else:
             return grid1 if grid1[1] < grid2[1] else grid2
 
-
     def evaluate(self, grid, playersMove, player):
-        return self.coinParity(grid) + self.mobility(grid, playersMove, player) + self.cornerValue(grid)
+        # we assume bot is always an maximazing player
+        # but pMoves and player parameters are for optimazing calculation
+        heuristics = [self.coinParity(grid), self.mobility(grid, playersMove, player),
+                      self.cornerValue(grid), self.stability(grid)]
+        evaluatedSum = 0
+        for weightIndex, func in enumerate(heuristics):
+            evaluatedSum += func * self.weights[weightIndex]
+        return evaluatedSum
 
     def coinParity(self, grid):
         maxPlayerCoins = 0
@@ -57,16 +63,16 @@ class ReversiBot():
 
             for i in range(size):
                 for j in range(size):
-                    if grid[i][j] == self.bColor:
+                    if grid[i][j] == self.ownColor:
                         maxPlayerCoins += V[i][j]
-                    elif grid[i][j] == self.pColor:
+                    elif grid[i][j] == self.enemyColor:
                         minPlayerCoins += V[i][j]
         else:
             for i in range(size):
                 for j in range(size):
-                    if grid[i][j] == self.bColor:
+                    if grid[i][j] == self.ownColor:
                         maxPlayerCoins += 1
-                    elif grid[i][j] == self.pColor:
+                    elif grid[i][j] == self.enemyColor:
                         minPlayerCoins += 1
         if maxPlayerCoins + minPlayerCoins != 0:
             return 100 * (maxPlayerCoins - minPlayerCoins) / (maxPlayerCoins + minPlayerCoins)
@@ -74,15 +80,12 @@ class ReversiBot():
             return 0
 
     def mobility(self, grid, pMoves, player):
-        # we assume bot is always an maximazing player
-        #but pMoves and player parameters are for optimazing calculation
-        #TODO Check whether corners are the only possible move?
-        return 0.08*self.actualMobility(grid, pMoves, player) + 0.36*self.potentialMobility(grid) + 0.56*self.cornerValue(grid)
+        return self.actualMobility(grid, pMoves, player) + self.potentialMobility(grid)
 
     def actualMobility(self, grid, pMoves, player):
         otherPlayerMovesNo = len(UMV.isDone(grid, player * -1))
         playerMovesNo = len(pMoves)
-        if player == self.bColor:
+        if player == self.ownColor:
             maxPlayerNo, minPlayerNo = playerMovesNo, otherPlayerMovesNo
         else:
             maxPlayerNo, minPlayerNo = otherPlayerMovesNo, playerMovesNo
@@ -100,14 +103,13 @@ class ReversiBot():
                 if grid[i][j] == UMV.emptyCell:
                     left = 0
                     right = 0
-                    # check left and right cells for this cell
                     if i > 0:
                         left = grid[i - 1][j]
                     if i < size - 1:
                         right = grid[i + 1][j]
-                    if left == self.pColor or right == self.pColor:
+                    if left == self.enemyColor or right == self.enemyColor:
                         minPlayer += 1
-                    if left == self.bColor or right == self.bColor:
+                    if left == self.ownColor or right == self.ownColor:
                         maxPlayer += 1
         if maxPlayer + minPlayer == 0:
             return 0
@@ -120,9 +122,9 @@ class ReversiBot():
         maxPlayer = 0
         minPlayer = 0
         for corner in corners:
-            if corner == self.bColor: #maxPlayer
+            if corner == self.ownColor:  # maxPlayer
                 maxPlayer += 1
-            elif corner == self.pColor: #minPlayer
+            elif corner == self.enemyColor:  # minPlayer
                 minPlayer += 1
 
         if maxPlayer + minPlayer == 0:
@@ -131,24 +133,113 @@ class ReversiBot():
             return 100 * (maxPlayer - minPlayer) / (maxPlayer + minPlayer)
 
     def stability(self, grid):
-        maxPlayer = 0
-        minPlayer = 0
         size = len(grid)
+        minPlayer = [0]
+        maxPlayer = [0]
+        stablePcs = {}
+        pcsNo = 0
+        #performance "trick" for early game
+        pausingFields = [(0, 0), (0, 1), (1, 0),
+                          (0, size - 1), (0, size - 2), (1, size - 1),
+                          (size-2, 0), (size - 1, size - 1), (1, size - 1),
+                          (size - 1, size - 2), (size - 2, size - 1), (size - 1, size - 1)]
+        startFlag = 0
+        for field in pausingFields:
+            if grid[field[0]][field[1]] != 0:
+                startFlag = 1
+                break
+        if startFlag == 0:
+            return 0
+
+        corners = [(0, 0, (1, 0), (0, 1)), (size - 1, 0, (0, 1), (-1, 0)),
+                   (0, size - 1, (0, -1), (1, 0)), (size - 1, size - 1, (-1, 0), (0, -1))]
+        #check walls and save stable pieces for performance
+        for corner in corners:
+            if grid[corner[0]][corner[1]] != UMV.emptyCell:
+                self.saveWall(corner, grid, corner[2], stablePcs)
+                self.saveWall(corner, grid, corner[3], stablePcs)
+
         for i in range(size):
             for j in range(size):
-                if grid[i][j] == self.bColor:
-                    maxPlayer += self.calcStability(grid[i][j], self.bColor)
-                elif grid[i][j] == self.pColor:
-                    minPlayer += self.calcStability(grid[i][j], self.pColor)
+                if grid[i][j] != UMV.emptyCell:
+                    pcsNo += 1
+                    if self.calcStability(grid, j, i, stablePcs, grid[i][j]):
+                        self.inc(maxPlayer) if grid[i][j] == self.enemyColor else self.inc(minPlayer)
+                    else:
+                        self.dec(maxPlayer) if grid[i][j] == self.enemyColor else self.dec(minPlayer)
 
-    def calcStability(self, cell, player):
-        return 0
+        return 100 * (maxPlayer[0] - minPlayer[0]) / pcsNo
+
+    def saveWall(self, corner, grid, dir, stablePcs):
+            x = corner[1]
+            y = corner[0]
+            corner_val = grid[corner[0]][corner[1]]
+            for i in range(len(grid)):
+                if grid[y][x] == corner_val:
+                    index = str(y) + str(x)
+                    if index not in stablePcs:
+                        stablePcs[index] = corner_val
+                    x += dir[1]
+                    y += dir[0]
+                else:
+                    break
+
+            x = corner[1]
+            y = corner[0]
+            fullWallFlag = 1
+            for i in range(len(grid)):
+                if grid[y][x] == UMV.emptyCell:
+                    fullWallFlag = 0
+                    break
+                x += dir[1]
+                y += dir[0]
+
+            if fullWallFlag == 1:
+                x = corner[1]
+                y = corner[0]
+                for i in range(len(grid)):
+                    index = str(y) + str(x)
+                    if index not in stablePcs:
+                        stablePcs[index] = corner_val
+                    x += dir[1]
+                    y += dir[0]
 
 
+    def calcStability(self, grid, x, y, stablePcs, prevColor):
+        if str(y) + str(x) in stablePcs:
+            return True
+        size = len(grid)
+        if UMV.fitsInBoard(size, x, y) is False:
+            return True
+        if grid[y][x] == UMV.emptyCell:
+            return False
+        if grid[y][x] != prevColor:
+            return False
 
+        stablePc = 1
+        for dir in UMV.directions:
+            dx = x
+            dy = y
+            while(True):
+                dx += dir[1]
+                dy += dir[0]
+                if UMV.fitsInBoard(size, dx, dy) is False:
+                    break
+                if grid[dy][dx] == UMV.emptyCell:
+                    stablePc = 0
+                    if self.calcStability(grid, x - dir[0], y - dir[1], stablePcs, prevColor):
+                        stablePc = 1
+                    else:
+                        break
+            if stablePc == 0:
+                return False
+            else:
+                stablePcs[str(y) + str(x)] = grid[y][x]
+                return True
 
+    def inc(self, val):
+        val[0] = val[0] + 1
 
-
-
-
+    def dec(self, val):
+        val[0] = val[0] - 1
 
