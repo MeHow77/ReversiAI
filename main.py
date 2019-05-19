@@ -1,4 +1,4 @@
-from Reversi import *
+
 from Menu import *
 
 
@@ -7,7 +7,8 @@ if menu.getPlay() == False:
     quit()
 #depth = window.getDepth()
 size = menu.getSize()
-game = Reversi(size)  # rozmiar planszy kwadratowej
+
+game = menu.initReversi()  # rozmiar planszy kwadratowej
 
 done = False
 

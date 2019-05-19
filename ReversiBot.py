@@ -1,25 +1,26 @@
 import copy
 import numpy as np
 import UtilMoveValidness as UMV
+from Player import Player
 
+class ReversiBot(Player):
 
-class ReversiBot():
-
-    def __init__(self, depth, bColor, pColor):
+    def __init__(self, depth, weights):
+        super().__init__()
         self.depth = depth
-        self.bColor = bColor
-        self.pColor = pColor
+        self.weights = weights
 
-    def makeMove(self, grid, color, allMoves):
-        return self.minimax(grid, allMoves, 0, color)
+
+    def makeMove(self, grid, allMoves):
+        return self.minimax(grid, allMoves, 0, self.ownColor)
 
     def minimax(self, grid, allMoves, depth, player):
         if depth == self.depth or len(allMoves) == 0:
             # always evaluate grid for bot, but use minimax for player or bot
-            return grid, self.evaluate(grid, allMoves, self.bColor)
+            return grid, self.evaluate(grid, allMoves, self.ownColor)
 
         opp = player * -1
-        bestGrid = (grid, np.Inf * player)
+        bestGrid = (grid, np.NINF*self.ownColor * player)
         for move in allMoves:  # move is (grid, x, y)
             newMoves = UMV.isDone(move[0], opp)
             v = self.minimax(move[0], newMoves, depth + 1, opp)
@@ -30,7 +31,7 @@ class ReversiBot():
             return grid, bestGrid[1]
 
     def min(self, grid1, grid2, player):
-        if player == self.bColor:
+        if player == self.ownColor:
             return grid1 if grid1[1] >= grid2[1] else grid2
         else:
             return grid1 if grid1[1] < grid2[1] else grid2
@@ -38,8 +39,12 @@ class ReversiBot():
     def evaluate(self, grid, playersMove, player):
         # we assume bot is always an maximazing player
         # but pMoves and player parameters are for optimazing calculation
-        return self.coinParity(grid) + self.mobility(grid, playersMove,player) +\
-               self.cornerValue(grid) + self.stability(grid)
+        heuristics = [self.coinParity(grid), self.mobility(grid, playersMove, player),
+                      self.cornerValue(grid), self.stability(grid)]
+        evaluatedSum = 0
+        for weightIndex, func in enumerate(heuristics):
+            evaluatedSum += func * self.weights[weightIndex]
+        return evaluatedSum
 
     def coinParity(self, grid):
         maxPlayerCoins = 0
@@ -58,16 +63,16 @@ class ReversiBot():
 
             for i in range(size):
                 for j in range(size):
-                    if grid[i][j] == self.bColor:
+                    if grid[i][j] == self.ownColor:
                         maxPlayerCoins += V[i][j]
-                    elif grid[i][j] == self.pColor:
+                    elif grid[i][j] == self.enemyColor:
                         minPlayerCoins += V[i][j]
         else:
             for i in range(size):
                 for j in range(size):
-                    if grid[i][j] == self.bColor:
+                    if grid[i][j] == self.ownColor:
                         maxPlayerCoins += 1
-                    elif grid[i][j] == self.pColor:
+                    elif grid[i][j] == self.enemyColor:
                         minPlayerCoins += 1
         if maxPlayerCoins + minPlayerCoins != 0:
             return 100 * (maxPlayerCoins - minPlayerCoins) / (maxPlayerCoins + minPlayerCoins)
@@ -80,7 +85,7 @@ class ReversiBot():
     def actualMobility(self, grid, pMoves, player):
         otherPlayerMovesNo = len(UMV.isDone(grid, player * -1))
         playerMovesNo = len(pMoves)
-        if player == self.bColor:
+        if player == self.ownColor:
             maxPlayerNo, minPlayerNo = playerMovesNo, otherPlayerMovesNo
         else:
             maxPlayerNo, minPlayerNo = otherPlayerMovesNo, playerMovesNo
@@ -102,9 +107,9 @@ class ReversiBot():
                         left = grid[i - 1][j]
                     if i < size - 1:
                         right = grid[i + 1][j]
-                    if left == self.pColor or right == self.pColor:
+                    if left == self.enemyColor or right == self.enemyColor:
                         minPlayer += 1
-                    if left == self.bColor or right == self.bColor:
+                    if left == self.ownColor or right == self.ownColor:
                         maxPlayer += 1
         if maxPlayer + minPlayer == 0:
             return 0
@@ -117,9 +122,9 @@ class ReversiBot():
         maxPlayer = 0
         minPlayer = 0
         for corner in corners:
-            if corner == self.bColor:  # maxPlayer
+            if corner == self.ownColor:  # maxPlayer
                 maxPlayer += 1
-            elif corner == self.pColor:  # minPlayer
+            elif corner == self.enemyColor:  # minPlayer
                 minPlayer += 1
 
         if maxPlayer + minPlayer == 0:
@@ -159,9 +164,9 @@ class ReversiBot():
                 if grid[i][j] != UMV.emptyCell:
                     pcsNo += 1
                     if self.calcStability(grid, j, i, stablePcs, grid[i][j]):
-                        self.inc(maxPlayer) if grid[i][j] == self.pColor else self.inc(minPlayer)
+                        self.inc(maxPlayer) if grid[i][j] == self.enemyColor else self.inc(minPlayer)
                     else:
-                        self.dec(maxPlayer) if grid[i][j] == self.pColor else self.dec(minPlayer)
+                        self.dec(maxPlayer) if grid[i][j] == self.enemyColor else self.dec(minPlayer)
 
         return 100 * (maxPlayer[0] - minPlayer[0]) / pcsNo
 
@@ -237,3 +242,4 @@ class ReversiBot():
 
     def dec(self, val):
         val[0] = val[0] - 1
+

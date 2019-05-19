@@ -1,14 +1,17 @@
 import pygame
 import UtilMoveValidness as UMV
-from ReversiBot import ReversiBot
+from Player import Player
+from HumanPlayer import HumanPlayer
 from HeuristicBot import HeuristicBot
+from ReversiBot import ReversiBot
+
 import numpy as np
 
 
 class Reversi():
     screenwidth = 500
 
-    def __init__(self, size):
+    def __init__(self, size, player1, player2):
         pygame.init()
         if (size % 2 == 1):
             size += 1  # reversi wymaga parzystej ilości pól
@@ -29,11 +32,13 @@ class Reversi():
         self.finished = False
         self.finishFlags = {UMV.players["redP"]: 0,
                             UMV.players["blueP"]: 0}
-        self.player1_color = UMV.players["blueP"]
-        self.player2_color = self.player1_color * -1
-        self.botPlayer = HeuristicBot(self.depth, self.player2_color, self.player1_color)
+        self.curPlayer = UMV.players["blueP"]
 
-        self.depth = 6
+        self.player1 = player1
+        self.player2 = player2
+
+        self.player1.setColors(self.curPlayer, self.curPlayer * -1)
+        self.player2.setColors(self.player1.getEnemyColor(), self.player1.getOwnColor())
 
     def getXYfromMousePos(self, pos):
         x = int(pos[0] / (self.screenwidth / self.size))
@@ -80,7 +85,7 @@ class Reversi():
             if x == move[1] and y == move[2]:  # if click is one of valid move
                 self.grid = move[0]
                 self.updatescreen()
-                self.finishFlags[UMV.players["blueP"]] = 0  # player could move
+                self.finishFlags[self.curPlayer] = 0  # player could move
                 return True
         return False
 
@@ -92,7 +97,7 @@ class Reversi():
             j = self.cursor[1]
             if self.grid[i][j] == UMV.emptyCell:
                 self.drawcell((255 * ((i + j) % 2), 255 * ((i + j) % 2), 255 * ((i + j) % 2)), i, j)
-            if self.player1_color == UMV.players["redP"]:
+            if self.curPlayer == UMV.players["redP"]:
                 color = (255, 0, 0)
             else:
                 color = (0, 0, 255)
@@ -100,46 +105,46 @@ class Reversi():
             self.cursor = (x, y)
             pygame.display.flip()
 
-    # def twoBotsGame(self):
-    #     while not self.isGameFinished():
-    #         if self.curPlayer == UMV.players['blueP']:
-    #             bot = self.normalBot
-    #         else:
-    #             bot = self.hBot
-    #         self.useBot(bot)
-    #         self.updatescreen()
 
     def eventController(self, event):
         if not self.isGameFinished():
-            if self.player1_color == self.player2_color:
-                self.useBot()
-                self.updatescreen()
+            if self.curPlayer == self.player1.getOwnColor():
+                if isinstance(self.player1, HumanPlayer):
+                    self.playerMoves(event)
+                else:
+                    self.useBot(self.player1)
             else:
-                self.playerMoves(event)
+                if isinstance(self.player2, HumanPlayer):
+                    self.playerMoves(event)
+                else:
+                    self.useBot(self.player2)
 
-    def useBot(self):
-        allMoves = UMV.isDone(self.grid, self.player1_color)
+
+
+    def  useBot(self, bot):
+        allMoves = UMV.isDone(self.grid, self.curPlayer)
         if len(allMoves) != 0:
-            self.finishFlags[self.player1_color] = 0
-            self.grid = self.botPlayer.makeMove(self.grid, self.player1_color, allMoves)
-            self.player1_color *= -1  # change player
+            self.finishFlags[self.curPlayer] = 0
+            self.grid = bot.makeMove(self.grid,  allMoves)
+            self.curPlayer *= -1  # change player
         else:
-            self.finishFlags[self.player1_color] = 1
-            self.player1_color *= -1  # change player
+            self.finishFlags[self.curPlayer] = 1
+            self.curPlayer *= -1  # change player
+        self.updatescreen()
 
     def playerMoves(self, event):
-        allMoves = UMV.isDone(self.grid, self.player1_color)
+        allMoves = UMV.isDone(self.grid, self.curPlayer)
         if len(allMoves) != 0:
-            self.finishFlags[self.player1_color] = 0
+            self.finishFlags[self.curPlayer] = 0
             (x, y) = self.getXYfromMousePos(pygame.mouse.get_pos())
             if event == pygame.MOUSEBUTTONUP:
                 if self.press(x, y, allMoves):
-                    self.player1_color *= -1  # change player
+                    self.curPlayer *= -1  # change player
             if event == pygame.MOUSEMOTION:
                 self.showcursor(x, y)
         else:
-            self.finishFlags[self.player1_color] = 1
-            self.player1_color *= -1  # change player
+            self.finishFlags[self.curPlayer] = 1
+            self.curPlayer *= -1  # change player
 
     def isGameFinished(self):
         if (self.finishFlags[UMV.players["blueP"]] == \
