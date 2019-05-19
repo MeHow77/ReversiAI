@@ -4,8 +4,8 @@ import UtilMoveValidness as UMV
 
 
 class HeuristicBot(ReversiBot):
-    def __init__(self, grid, depth, bColor, pColor):
-        super().__init__(grid, depth, bColor, pColor)
+    def __init__(self, depth, bColor, pColor):
+        super().__init__(depth, bColor, pColor)
 
     def makeMove(self, grid, color, allMoves):
         return self.alphaBeta(grid, allMoves, 0, color, np.NINF, np.PINF)

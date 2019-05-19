@@ -5,7 +5,7 @@ import UtilMoveValidness as UMV
 
 class ReversiBot():
 
-    def __init__(self, grid, depth, bColor, pColor):
+    def __init__(self, depth, bColor, pColor):
         self.depth = depth
         self.bColor = bColor
         self.pColor = pColor

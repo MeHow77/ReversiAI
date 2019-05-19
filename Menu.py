@@ -22,8 +22,12 @@ class Menu():
     # RETURINNG VALUES
     size = 8
     play = False
-    player1 = "Reversi"
-    player2 = "Human"
+    players = ["Reversi", "Human", "Alfa-Beta"]
+    player1_index = 0
+    player2_index = 1
+    player1 = players[player1_index]
+    player2 = players[player2_index]
+
     player1_depth = 4
     player2_depth = 4
     player1_heuristic = (0.5,0.5,0.5,0.5)
@@ -46,6 +50,14 @@ class Menu():
 
     def getPlayer2_depth(self):
         return self.player2_depth
+
+    def changePlayer1Name(self):
+        self.player1_index = (self.player1_index + 1) % len(self.players)
+        self.player1 = self.players[self.player1_index]
+
+    def changePlayer2Name(self):
+        self.player2_index = (self.player2_index + 1) % len(self.players)
+        self.player2 = self.players[self.player2_index]
 
     def __init__(self):
         pg.init()
@@ -77,17 +89,9 @@ class Menu():
                         if self.size > 2:
                             self.size -= 2
                     if player1_button.collidepoint(event.pos):
-                        if self.player1 == "Reversi":
-                            self.player1 = "Alfa-Beta"
-                        else:
-                            self.player1 = "Reversi"
+                        self.changePlayer1Name()
                     if player2_button.collidepoint(event.pos):
-                        if self.player2 == "Reversi":
-                            self.player2 = "Alfa-Beta"
-                        elif self.player2 == "Alfa-Beta":
-                            self.player2 = "Human"
-                        else:
-                            self.player2 = "Reversi"
+                        self.changePlayer2Name()
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_SPACE:
                         self.play = True
@@ -172,3 +176,5 @@ class Menu():
             # pg.draw.rect(self.screen, self.size_color, self.size_input_box, 2)
 
             pg.display.update()
+
+
