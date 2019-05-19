@@ -113,7 +113,7 @@ class ReversiBot():
 
     def cornerValue(self, grid):
         size = len(grid)
-        corners = [grid[0][0], grid[0][size-1], grid[size-1][0], grid[size-1][7]]
+        corners = [grid[0][size-1], grid[0][size-1], grid[size-1][0], grid[size-1][size-1]]
         maxPlayer = 0
         minPlayer = 0
         for corner in corners:

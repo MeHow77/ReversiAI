@@ -4,9 +4,16 @@ import random
 import pickle
 import UtilMoveValidness as UMV
 from Reversi import *
+from Menu import *
 
-game = Reversi(8)  # rozmiar planszy kwadratowej
-clock = pygame.time.Clock()
+
+menu = Menu()
+if menu.getPlay() == False:
+    quit()
+#depth = window.getDepth()
+size = menu.getSize()
+game = Reversi(size)  # rozmiar planszy kwadratowej
+
 done = False
 
 while not done:
