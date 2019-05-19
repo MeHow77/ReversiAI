@@ -30,7 +30,7 @@ class Reversi():
         self.curPlayer = UMV.players["blueP"]
         self.botsColor = self.curPlayer * -1
         #fun part
-        self.depth = 3
+        self.depth = 6
         self.botPlayer = HeuristicBot(self.grid, self.depth, self.botsColor,  self.curPlayer)
 
 
