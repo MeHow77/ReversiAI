@@ -35,7 +35,7 @@ class Menu():
     player1_depth = 3
     player2_depth = 3
     player1_heuristic = (0.1, 0.2, 0.2, 0.5)
-    player2_heuristic = (0.75, 0.05, 0.1, 0.1)
+    player2_heuristic = (0.05, 0.05, 0.1, 2.9)
 
     def getSize(self):
         return int(self.size)
