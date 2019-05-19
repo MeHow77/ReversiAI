@@ -24,6 +24,10 @@ class Menu():
     play = False
     player1 = "Reversi"
     player2 = "Human"
+    player1_depth = 4
+    player2_depth = 4
+    player1_heuristic = (0.5,0.5,0.5,0.5)
+    player2_heuristic = (0.5,0.5,0.5,0.5)
 
     def getSize(self):
         return int(self.size)
@@ -36,6 +40,12 @@ class Menu():
 
     def getPlayer2(self):
         return self.player2
+
+    def getPlayer1_depth(self):
+        return self.player1_depth
+
+    def getPlayer2_depth(self):
+        return self.player2_depth
 
     def __init__(self):
         pg.init()
@@ -124,6 +134,37 @@ class Menu():
             self.screen.blit(self.text,
                              (player2_button.x + player2_button.width // 2 - self.text.get_width() // 2, 165))
             # DEBUG INSTRUCTION
+            self.screen.blit(self.text, (xDistance + self.text.get_width() + 6, 114+self.sizeText.get_height()//2+1))
+            #"VS" symbol
+            self.text = self.largeFont2.render("VS", True, self.yellow)
+            self.screen.blit(self.text, (self.screenwidth //2 - self.text.get_width()//2 + 8, 180-self.text.get_height()//2))
+            #full tree vs alfa-beta
+            player1_button = pg.Rect(self.screenwidth * 3 // 32 , 160, 160, 40)
+            pg.draw.rect(self.screen, self.green, player1_button)
+            self.text = self.font.render(self.player1, True, self.red)
+            self.screen.blit(self.text, (player1_button.x + player1_button.width//2 - self.text.get_width()//2,165))
+            #draw options for player1
+            player1_depth_box = pg.Rect(player1_button.x, player1_button.y + 50, 120, 40)
+            pg.draw.rect(self.screen, self.green, player1_depth_box)
+            self.text = self.font.render("Depth: " + str(self.player1_depth), True, self.red)
+            self.screen.blit(self.text, (player1_depth_box.x + 5,player1_depth_box.y + 5))
+
+                #TODO OPTIONS
+                #DEPTH
+                #4 HEURISTICS
+            #full tree vs alfa-beta vs player
+            player2_button = pg.Rect(self.screenwidth // 8 * 5, 160, 160, 40)
+            pg.draw.rect(self.screen, self.green, player2_button)
+            self.text = self.font.render(self.player2, True, self.red)
+            self.screen.blit(self.text,(player2_button.x + player2_button.width // 2 - self.text.get_width() // 2, 165))
+            #draw options for player2 IF NOT HUMAN
+            if self.player2 != "Human":
+                pass
+                # TODO OPTIONS
+                # DEPTH
+                # 4 HEURISTICS
+
+            #DEBUG INSTRUCTION
             self.text = self.font.render("Press space to play", True, self.red)
             self.screen.blit(self.text, (self.screenwidth // 2 - self.text.get_width() // 2, self.screenwidth - 100))
 
