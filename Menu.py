@@ -17,9 +17,8 @@ class Menu():
     color_inactive = pg.Color('lightskyblue3')
     color_active = pg.Color('dodgerblue2')
     # COLOR VARIABLES
-    size_color = color_active
-    # BOXES
-    # size_up_button
+
+
     # RETURINNG VALUES
     size = 8
     play = False
@@ -34,8 +33,9 @@ class Menu():
 
     player1_depth = 3
     player2_depth = 3
-    player1_heuristic = (0.1, 0.2, 0.2, 0.5)
-    player2_heuristic = (0.05, 0.05, 0.1, 2.9)
+    #(coinParity, mobility, corners, stability
+    player1_heuristic = [0.15, 0.2, 0.2, 0.5]
+    player2_heuristic = [0.05, 0.05, 0.1, 2.9]
 
     def getSize(self):
         return int(self.size)
@@ -56,7 +56,7 @@ class Menu():
         return self.player2_depth
 
     def changePlayer1Name(self):
-        self.player1_index = (self.player1_index + 1) % (len(self.playerNames) - 1)
+        self.player1_index = (self.player1_index + 1) % (len(self.playerNames))
         self.player1 = self.playerNames[self.player1_index]
 
     def changePlayer2Name(self):
@@ -92,6 +92,8 @@ class Menu():
         self.largeFont2 = pg.font.SysFont("comicsansms", 72)
         self.font = pg.font.Font("./fonts/Roboto-Black.ttf", 26)
         self.littleFont = pg.font.Font("./fonts/Roboto-Black.ttf", 20)
+        self.littleFont2 = pg.font.Font("./fonts/Roboto-Black.ttf", 16)
+
 
         # TEXTS
         self.titleText = self.largeFont2.render("ReverSI", True, self.blue)
@@ -105,7 +107,7 @@ class Menu():
                     running = False
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if size_up_button.collidepoint(event.pos):
-                        if self.size < 98:
+                        if self.size < 16:
                             self.size += 2
                     if size_down_button.collidepoint(event.pos):
                         if self.size > 2:
@@ -114,6 +116,74 @@ class Menu():
                         self.changePlayer1Name()
                     if player2_button.collidepoint(event.pos):
                         self.changePlayer2Name()
+                    if player1_depth_up_button.collidepoint(event.pos):
+                        if self.player1_depth < 9:
+                            self.player1_depth += 1
+                    if player1_depth_down_button.collidepoint(event.pos):
+                        if self.player1_depth > 1:
+                            self.player1_depth -= 1
+                    if player1_coinParity_up_button.collidepoint(event.pos):
+                        self.player1_heuristic[0] += 0.05
+                        self.player1_heuristic[0] = float("{0:.2f}".format(self.player1_heuristic[0]))
+                    if player1_coinParity_down_button.collidepoint(event.pos):
+                        if self.player1_heuristic[0] > 0:
+                            self.player1_heuristic[0] -= 0.05
+                            self.player1_heuristic[0] = float("{0:.2f}".format(self.player1_heuristic[0]))
+                    if player1_mobility_up_button.collidepoint(event.pos):
+                        self.player1_heuristic[1] += 0.05
+                        self.player1_heuristic[1] = float("{0:.2f}".format(self.player1_heuristic[1]))
+                    if player1_mobility_down_button.collidepoint(event.pos):
+                        if self.player1_heuristic[1] > 0:
+                            self.player1_heuristic[1] -= 0.05
+                            self.player1_heuristic[1] = float("{0:.2f}".format(self.player1_heuristic[1]))
+                    if player1_cornerValue_up_button.collidepoint(event.pos):
+                        self.player1_heuristic[2] += 0.05
+                        self.player1_heuristic[2] = float("{0:.2f}".format(self.player1_heuristic[2]))
+                    if player1_cornerValue_down_button.collidepoint(event.pos):
+                        if self.player1_heuristic[2] > 0:
+                            self.player1_heuristic[2] -= 0.05
+                            self.player1_heuristic[2] = float("{0:.2f}".format(self.player1_heuristic[2]))
+                    if player1_stability_up_button.collidepoint(event.pos):
+                        self.player1_heuristic[3] += 0.05
+                        self.player1_heuristic[3] = float("{0:.2f}".format(self.player1_heuristic[3]))
+                    if player1_stability_down_button.collidepoint(event.pos):
+                        if self.player1_heuristic[3] > 0:
+                            self.player1_heuristic[3] -= 0.05
+                            self.player1_heuristic[3] = float("{0:.2f}".format(self.player1_heuristic[3]))
+                    if player2_depth_up_button.collidepoint(event.pos):
+                        if self.player2_depth < 9:
+                            self.player2_depth += 1
+                    if player2_depth_down_button.collidepoint(event.pos):
+                        if self.player2_depth > 1:
+                            self.player2_depth -= 1
+                    if player2_coinParity_up_button.collidepoint(event.pos):
+                        self.player2_heuristic[0] += 0.05
+                        self.player2_heuristic[0] = float("{0:.2f}".format(self.player2_heuristic[0]))
+                    if player2_coinParity_down_button.collidepoint(event.pos):
+                        if self.player2_heuristic[0] > 0:
+                            self.player2_heuristic[0] -= 0.05
+                            self.player2_heuristic[0] = float("{0:.2f}".format(self.player2_heuristic[0]))
+                    if player2_mobility_up_button.collidepoint(event.pos):
+                        self.player2_heuristic[1] += 0.05
+                        self.player2_heuristic[1] = float("{0:.2f}".format(self.player2_heuristic[1]))
+                    if player2_mobility_down_button.collidepoint(event.pos):
+                        if self.player2_heuristic[1] > 0:
+                            self.player2_heuristic[1] -= 0.05
+                            self.player2_heuristic[1] = float("{0:.2f}".format(self.player2_heuristic[1]))
+                    if player2_cornerValue_up_button.collidepoint(event.pos):
+                        self.player2_heuristic[2] += 0.05
+                        self.player2_heuristic[2] = float("{0:.2f}".format(self.player2_heuristic[2]))
+                    if player2_cornerValue_down_button.collidepoint(event.pos):
+                        if self.player2_heuristic[2] > 0:
+                            self.player2_heuristic[2] -= 0.05
+                            self.player2_heuristic[2] = float("{0:.2f}".format(self.player2_heuristic[2]))
+                    if player2_stability_up_button.collidepoint(event.pos):
+                        self.player2_heuristic[3] += 0.05
+                        self.player2_heuristic[3] = float("{0:.2f}".format(self.player2_heuristic[3]))
+                    if player2_stability_down_button.collidepoint(event.pos):
+                        if self.player2_heuristic[3] > 0:
+                            self.player2_heuristic[3] -= 0.05
+                            self.player2_heuristic[3] = float("{0:.2f}".format(self.player2_heuristic[3]))
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_SPACE:
                         self.play = True
@@ -150,7 +220,7 @@ class Menu():
             # "VS" symbol
             self.text = self.largeFont2.render("VS", True, self.yellow)
             self.screen.blit(self.text, (
-            self.screenwidth // 2 - self.text.get_width() // 2 + 8, 180 - self.text.get_height() // 2))
+                self.screenwidth // 2 - self.text.get_width() // 2 + 8, 180 - self.text.get_height() // 2))
             # full tree vs alfa-beta
             player1_button = pg.Rect(self.screenwidth * 3 // 32, 160, 160, 40)
             pg.draw.rect(self.screen, self.green, player1_button)
@@ -158,15 +228,132 @@ class Menu():
             self.screen.blit(self.text,
                              (player1_button.x + player1_button.width // 2 - self.text.get_width() // 2, 165))
             # draw options for player1
-            player1_depth_box = pg.Rect(player1_button.x, player1_button.y + 50, 120, 40)
-            pg.draw.rect(self.screen, self.green, player1_depth_box)
-            self.text = self.font.render("Depth: " + str(self.player1_depth), True, self.red)
-            self.screen.blit(self.text, (player1_depth_box.x + 5, player1_depth_box.y + 5))
+            if self.player1 != "Human":
+                #DEPTH
+                player1_depth_box = pg.Rect(player1_button.x, player1_button.y + 50, 110, 40)
+                pg.draw.rect(self.screen, self.green, player1_depth_box)
+                self.text = self.font.render("Depth: " + str(self.player1_depth), True, self.red)
+                self.screen.blit(self.text, (player1_depth_box.x + 5, player1_depth_box.y + 5))
 
-            # TODO OPTIONS
-            # DEPTH
-            # 4 HEURISTICS
-            # full tree vs alfa-beta vs player
+                player1_depth_up_button = pg.Rect(player1_depth_box.x + player1_depth_box.width + 5, player1_depth_box.y,45,18)
+                pg.draw.rect(self.screen,self.green, player1_depth_up_button)
+                self.text = self.littleFont.render("+1", True, self.red)
+                self.screen.blit(self.text, (player1_depth_up_button.x + player1_depth_up_button.width//2 - self.text.get_width()//2, player1_depth_up_button.y - self.text.get_width()/8 ))
+
+
+                player1_depth_down_button = pg.Rect(player1_depth_up_button.x,player1_depth_up_button.y + player1_depth_up_button.height + 4, player1_depth_up_button.width,player1_depth_up_button.height)
+                pg.draw.rect(self.screen, self.green, player1_depth_down_button)
+                self.text = self.littleFont.render("-1", True, self.red)
+                self.screen.blit(self.text, (
+                    player1_depth_down_button.x + player1_depth_down_button.width // 2 - self.text.get_width() // 2,
+                    player1_depth_down_button.y - self.text.get_width() / 8))
+
+                #COINPARITY
+                player1_coinParity_box = pg.Rect(player1_depth_box.x,player1_depth_box.y+player1_depth_box.height+5,player1_depth_box.width,player1_depth_box.height)
+                pg.draw.rect(self.screen, self.green, player1_coinParity_box)
+                self.text = self.littleFont.render("coinP: " + str(self.player1_heuristic[0]), True, self.red)
+                self.screen.blit(self.text, (player1_coinParity_box.x + 3, player1_coinParity_box.y + 10))
+
+                player1_coinParity_up_button = pg.Rect(player1_depth_up_button.x,
+                                                    player1_coinParity_box.y,
+                                                    player1_depth_up_button.width, player1_depth_up_button.height)
+                pg.draw.rect(self.screen, self.green, player1_coinParity_up_button)
+                self.text = self.littleFont2.render("+0.05", True, self.red)
+                self.screen.blit(self.text,
+                                ((player1_coinParity_up_button.x + player1_coinParity_up_button.width//2 - self.text.get_width()//2, player1_coinParity_up_button.y)))
+
+                player1_coinParity_down_button = pg.Rect(player1_coinParity_up_button.x,
+                                                    player1_coinParity_up_button.y + player1_coinParity_up_button.height + 4,
+                                                    player1_coinParity_up_button.width, player1_coinParity_up_button.height)
+                pg.draw.rect(self.screen, self.green, player1_coinParity_down_button)
+                self.text = self.littleFont2.render("-0.05", True, self.red)
+                self.screen.blit(self.text, (
+                    player1_coinParity_down_button.x + player1_coinParity_down_button.width // 2 - self.text.get_width() // 2,
+                    player1_coinParity_down_button.y))
+
+                #MOBILITY
+                player1_mobility_box = pg.Rect(player1_depth_box.x,
+                                                 player1_coinParity_box.y + player1_depth_box.height + 5,
+                                                 player1_depth_box.width, player1_depth_box.height)
+                pg.draw.rect(self.screen, self.green, player1_mobility_box)
+                self.text = self.littleFont.render("mobil: " + str(self.player1_heuristic[1]), True, self.red)
+                self.screen.blit(self.text, (player1_mobility_box.x + 3, player1_mobility_box.y + 10))
+
+                player1_mobility_up_button = pg.Rect(player1_depth_up_button.x,
+                                                       player1_mobility_box.y,
+                                                       player1_depth_up_button.width, player1_depth_up_button.height)
+                pg.draw.rect(self.screen, self.green, player1_mobility_up_button)
+                self.text = self.littleFont2.render("+0.05", True, self.red)
+                self.screen.blit(self.text,
+                                 ((
+                                 player1_mobility_up_button.x + player1_mobility_up_button.width // 2 - self.text.get_width() // 2,
+                                 player1_mobility_up_button.y)))
+
+                player1_mobility_down_button = pg.Rect(player1_mobility_up_button.x,
+                                                         player1_mobility_up_button.y + player1_mobility_up_button.height + 4,
+                                                         player1_mobility_up_button.width,
+                                                         player1_mobility_up_button.height)
+                pg.draw.rect(self.screen, self.green, player1_mobility_down_button)
+                self.text = self.littleFont2.render("-0.05", True, self.red)
+                self.screen.blit(self.text, (
+                    player1_mobility_down_button.x + player1_mobility_down_button.width // 2 - self.text.get_width() // 2,
+                    player1_mobility_down_button.y))
+
+                #CORNERVALUE
+                player1_cornerValue_box = pg.Rect(player1_depth_box.x,
+                                               player1_mobility_box.y + player1_depth_box.height + 5,
+                                               player1_depth_box.width, player1_depth_box.height)
+                pg.draw.rect(self.screen, self.green, player1_cornerValue_box)
+                self.text = self.littleFont.render("cornV:" + str(self.player1_heuristic[2]), True, self.red)
+                self.screen.blit(self.text, (player1_cornerValue_box.x + 3, player1_cornerValue_box.y + 10))
+
+                player1_cornerValue_up_button = pg.Rect(player1_depth_up_button.x,
+                                                     player1_cornerValue_box.y,
+                                                     player1_depth_up_button.width, player1_depth_up_button.height)
+                pg.draw.rect(self.screen, self.green, player1_cornerValue_up_button)
+                self.text = self.littleFont2.render("+0.05", True, self.red)
+                self.screen.blit(self.text,
+                                 ((
+                                     player1_cornerValue_up_button.x + player1_cornerValue_up_button.width // 2 - self.text.get_width() // 2,
+                                     player1_cornerValue_up_button.y)))
+
+                player1_cornerValue_down_button = pg.Rect(player1_cornerValue_up_button.x,
+                                                       player1_cornerValue_up_button.y + player1_cornerValue_up_button.height + 4,
+                                                       player1_cornerValue_up_button.width,
+                                                       player1_cornerValue_up_button.height)
+                pg.draw.rect(self.screen, self.green, player1_cornerValue_down_button)
+                self.text = self.littleFont2.render("-0.05", True, self.red)
+                self.screen.blit(self.text, (
+                    player1_cornerValue_down_button.x + player1_cornerValue_down_button.width // 2 - self.text.get_width() // 2,
+                    player1_cornerValue_down_button.y))
+                #STABILITY
+                player1_stability_box = pg.Rect(player1_depth_box.x,
+                                                  player1_cornerValue_box.y + player1_depth_box.height + 5,
+                                                  player1_depth_box.width, player1_depth_box.height)
+                pg.draw.rect(self.screen, self.green, player1_stability_box)
+                self.text = self.littleFont.render("stabi:" + str(self.player1_heuristic[3]), True, self.red)
+                self.screen.blit(self.text, (player1_stability_box.x + 3, player1_stability_box.y + 10))
+
+                player1_stability_up_button = pg.Rect(player1_depth_up_button.x,
+                                                        player1_stability_box.y,
+                                                        player1_depth_up_button.width, player1_depth_up_button.height)
+                pg.draw.rect(self.screen, self.green, player1_stability_up_button)
+                self.text = self.littleFont2.render("+0.05", True, self.red)
+                self.screen.blit(self.text,
+                                 ((
+                                     player1_stability_up_button.x + player1_stability_up_button.width // 2 - self.text.get_width() // 2,
+                                     player1_stability_up_button.y)))
+
+                player1_stability_down_button = pg.Rect(player1_stability_up_button.x,
+                                                          player1_stability_up_button.y + player1_stability_up_button.height + 4,
+                                                          player1_stability_up_button.width,
+                                                          player1_stability_up_button.height)
+                pg.draw.rect(self.screen, self.green, player1_stability_down_button)
+                self.text = self.littleFont2.render("-0.05", True, self.red)
+                self.screen.blit(self.text, (
+                    player1_stability_down_button.x + player1_stability_down_button.width // 2 - self.text.get_width() // 2,
+                    player1_stability_down_button.y))
+
             player2_button = pg.Rect(self.screenwidth // 8 * 5, 160, 160, 40)
             pg.draw.rect(self.screen, self.green, player2_button)
             self.text = self.font.render(self.player2, True, self.red)
@@ -174,16 +361,142 @@ class Menu():
                              (player2_button.x + player2_button.width // 2 - self.text.get_width() // 2, 165))
             # draw options for player2 IF NOT HUMAN
             if self.player2 != "Human":
-                pass
-                # TODO OPTIONS
                 # DEPTH
-                # 4 HEURISTICS
+                player2_depth_box = pg.Rect(player2_button.x, player2_button.y + 50, 110, 40)
+                pg.draw.rect(self.screen, self.green, player2_depth_box)
+                self.text = self.font.render("Depth: " + str(self.player2_depth), True, self.red)
+                self.screen.blit(self.text, (player2_depth_box.x + 5, player2_depth_box.y + 5))
+
+                player2_depth_up_button = pg.Rect(player2_depth_box.x + player2_depth_box.width + 5,
+                                                  player2_depth_box.y, 45, 18)
+                pg.draw.rect(self.screen, self.green, player2_depth_up_button)
+                self.text = self.littleFont.render("+1", True, self.red)
+                self.screen.blit(self.text, (
+                player2_depth_up_button.x + player2_depth_up_button.width // 2 - self.text.get_width() // 2,
+                player2_depth_up_button.y - self.text.get_width() / 8))
+
+                player2_depth_down_button = pg.Rect(player2_depth_up_button.x,
+                                                    player2_depth_up_button.y + player2_depth_up_button.height + 4,
+                                                    player2_depth_up_button.width, player2_depth_up_button.height)
+                pg.draw.rect(self.screen, self.green, player2_depth_down_button)
+                self.text = self.littleFont.render("-1", True, self.red)
+                self.screen.blit(self.text, (
+                    player2_depth_down_button.x + player2_depth_down_button.width // 2 - self.text.get_width() // 2,
+                    player2_depth_down_button.y - self.text.get_width() / 8))
+
+                # COINPARITY
+                player2_coinParity_box = pg.Rect(player2_depth_box.x,
+                                                 player2_depth_box.y + player2_depth_box.height + 5,
+                                                 player2_depth_box.width, player2_depth_box.height)
+                pg.draw.rect(self.screen, self.green, player2_coinParity_box)
+                self.text = self.littleFont.render("coinP: " + str(self.player2_heuristic[0]), True, self.red)
+                self.screen.blit(self.text, (player2_coinParity_box.x + 3, player2_coinParity_box.y + 10))
+
+                player2_coinParity_up_button = pg.Rect(player2_depth_up_button.x,
+                                                       player2_coinParity_box.y,
+                                                       player2_depth_up_button.width, player2_depth_up_button.height)
+                pg.draw.rect(self.screen, self.green, player2_coinParity_up_button)
+                self.text = self.littleFont2.render("+0.05", True, self.red)
+                self.screen.blit(self.text,
+                                 ((
+                                 player2_coinParity_up_button.x + player2_coinParity_up_button.width // 2 - self.text.get_width() // 2,
+                                 player2_coinParity_up_button.y)))
+
+                player2_coinParity_down_button = pg.Rect(player2_coinParity_up_button.x,
+                                                         player2_coinParity_up_button.y + player2_coinParity_up_button.height + 4,
+                                                         player2_coinParity_up_button.width,
+                                                         player2_coinParity_up_button.height)
+                pg.draw.rect(self.screen, self.green, player2_coinParity_down_button)
+                self.text = self.littleFont2.render("-0.05", True, self.red)
+                self.screen.blit(self.text, (
+                    player2_coinParity_down_button.x + player2_coinParity_down_button.width // 2 - self.text.get_width() // 2,
+                    player2_coinParity_down_button.y))
+
+                # MOBILITY
+                player2_mobility_box = pg.Rect(player2_depth_box.x,
+                                               player2_coinParity_box.y + player2_depth_box.height + 5,
+                                               player2_depth_box.width, player2_depth_box.height)
+                pg.draw.rect(self.screen, self.green, player2_mobility_box)
+                self.text = self.littleFont.render("mobil: " + str(self.player2_heuristic[1]), True, self.red)
+                self.screen.blit(self.text, (player2_mobility_box.x + 3, player2_mobility_box.y + 10))
+
+                player2_mobility_up_button = pg.Rect(player2_depth_up_button.x,
+                                                     player2_mobility_box.y,
+                                                     player2_depth_up_button.width, player2_depth_up_button.height)
+                pg.draw.rect(self.screen, self.green, player2_mobility_up_button)
+                self.text = self.littleFont2.render("+0.05", True, self.red)
+                self.screen.blit(self.text,
+                                 ((
+                                     player2_mobility_up_button.x + player2_mobility_up_button.width // 2 - self.text.get_width() // 2,
+                                     player2_mobility_up_button.y)))
+
+                player2_mobility_down_button = pg.Rect(player2_mobility_up_button.x,
+                                                       player2_mobility_up_button.y + player2_mobility_up_button.height + 4,
+                                                       player2_mobility_up_button.width,
+                                                       player2_mobility_up_button.height)
+                pg.draw.rect(self.screen, self.green, player2_mobility_down_button)
+                self.text = self.littleFont2.render("-0.05", True, self.red)
+                self.screen.blit(self.text, (
+                    player2_mobility_down_button.x + player2_mobility_down_button.width // 2 - self.text.get_width() // 2,
+                    player2_mobility_down_button.y))
+
+                # CORNERVALUE
+                player2_cornerValue_box = pg.Rect(player2_depth_box.x,
+                                                  player2_mobility_box.y + player2_depth_box.height + 5,
+                                                  player2_depth_box.width, player2_depth_box.height)
+                pg.draw.rect(self.screen, self.green, player2_cornerValue_box)
+                self.text = self.littleFont.render("cornV:" + str(self.player2_heuristic[2]), True, self.red)
+                self.screen.blit(self.text, (player2_cornerValue_box.x + 3, player2_cornerValue_box.y + 10))
+
+                player2_cornerValue_up_button = pg.Rect(player2_depth_up_button.x,
+                                                        player2_cornerValue_box.y,
+                                                        player2_depth_up_button.width, player2_depth_up_button.height)
+                pg.draw.rect(self.screen, self.green, player2_cornerValue_up_button)
+                self.text = self.littleFont2.render("+0.05", True, self.red)
+                self.screen.blit(self.text,
+                                 ((
+                                     player2_cornerValue_up_button.x + player2_cornerValue_up_button.width // 2 - self.text.get_width() // 2,
+                                     player2_cornerValue_up_button.y)))
+
+                player2_cornerValue_down_button = pg.Rect(player2_cornerValue_up_button.x,
+                                                          player2_cornerValue_up_button.y + player2_cornerValue_up_button.height + 4,
+                                                          player2_cornerValue_up_button.width,
+                                                          player2_cornerValue_up_button.height)
+                pg.draw.rect(self.screen, self.green, player2_cornerValue_down_button)
+                self.text = self.littleFont2.render("-0.05", True, self.red)
+                self.screen.blit(self.text, (
+                    player2_cornerValue_down_button.x + player2_cornerValue_down_button.width // 2 - self.text.get_width() // 2,
+                    player2_cornerValue_down_button.y))
+                # STABILITY
+                player2_stability_box = pg.Rect(player2_depth_box.x,
+                                                player2_cornerValue_box.y + player2_depth_box.height + 5,
+                                                player2_depth_box.width, player2_depth_box.height)
+                pg.draw.rect(self.screen, self.green, player2_stability_box)
+                self.text = self.littleFont.render("stabi:" + str(self.player2_heuristic[3]), True, self.red)
+                self.screen.blit(self.text, (player2_stability_box.x + 3, player2_stability_box.y + 10))
+
+                player2_stability_up_button = pg.Rect(player2_depth_up_button.x,
+                                                      player2_stability_box.y,
+                                                      player2_depth_up_button.width, player2_depth_up_button.height)
+                pg.draw.rect(self.screen, self.green, player2_stability_up_button)
+                self.text = self.littleFont2.render("+0.05", True, self.red)
+                self.screen.blit(self.text,
+                                 ((
+                                     player2_stability_up_button.x + player2_stability_up_button.width // 2 - self.text.get_width() // 2,
+                                     player2_stability_up_button.y)))
+
+                player2_stability_down_button = pg.Rect(player2_stability_up_button.x,
+                                                        player2_stability_up_button.y + player2_stability_up_button.height + 4,
+                                                        player2_stability_up_button.width,
+                                                        player2_stability_up_button.height)
+                pg.draw.rect(self.screen, self.green, player2_stability_down_button)
+                self.text = self.littleFont2.render("-0.05", True, self.red)
+                self.screen.blit(self.text, (
+                    player2_stability_down_button.x + player2_stability_down_button.width // 2 - self.text.get_width() // 2,
+                    player2_stability_down_button.y))
 
             # DEBUG INSTRUCTION
             self.text = self.font.render("Press space to play", True, self.red)
-            self.screen.blit(self.text, (self.screenwidth // 2 - self.text.get_width() // 2, self.screenwidth - 100))
-
-            # self.screen.blit(self.txt_surface, (self.size_input_box.x + 5, self.size_input_box.y + 5))
-            # pg.draw.rect(self.screen, self.size_color, self.size_input_box, 2)
+            self.screen.blit(self.text, (self.screenwidth // 2 - self.text.get_width() // 2, self.screenwidth - 60))
 
             pg.display.update()
