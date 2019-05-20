@@ -496,7 +496,7 @@ class Menu():
                     player2_stability_down_button.y))
 
             # DEBUG INSTRUCTION
-            self.text = self.font.render("Press space to play", True, self.red)
+            self.text = self.font.render("Press space to play", True, self.yellow)
             self.screen.blit(self.text, (self.screenwidth // 2 - self.text.get_width() // 2, self.screenwidth - 60))
 
             pg.display.update()
