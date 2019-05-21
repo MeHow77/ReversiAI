@@ -1,7 +1,7 @@
 import pygame as pg
 from Reversi import *
 from HumanPlayer import HumanPlayer
-from HeuristicBot import HeuristicBot
+from PrunerAB import PrunerAB
 from ReversiBot import ReversiBot
 
 
@@ -25,7 +25,7 @@ class Menu():
 
     playerNames = ["Reversi", "Alfa-Beta", "Human"]
     #HumanPlayer must be the last value
-    playerClasses = [ReversiBot, HeuristicBot, HumanPlayer]
+    playerClasses = [ReversiBot, PrunerAB, HumanPlayer]
     player1_index = 0
     player2_index = 1
     player1 = playerNames[player1_index]
@@ -34,6 +34,17 @@ class Menu():
     player1_depth = 3
     player2_depth = 3
     #(coinParity, mobility, corners, stability
+
+    A=[0.40971248238203684, 0.5306408749269009, 0.0969106649966659, 0.463747896890222]
+    B=[0.5941530541291111, 0.08462986820375495, 0.9255780541334395, 0.44131756686210055]
+    C=[0.9657349255233618, 0.09515442216043024, 0.3590243246465905, 0.1526161683008388]
+    D=[0.851636087777323, 0.12091340542359197, 0.8233622306247407, 0.6044219693385157]
+    E=[0.8969052631551107, 0.17376185647291675, 0.9770899277858078, 0.5559591476274439]
+    F=[0.09752400410394868, 0.48120997865762205, 0.7442825914331506, 0.635890725871298]
+    G=[0.5767290990451169, 0.617505183068171, 0.6498453728290142, 0.7318339819886498]
+    H=[0.626760668655899, 0.15339760756931997, 0.5681752657108992, 0.541345933648728]
+    I=[0.8823264357770445, 0.17436842789318707, 0.9287245300932346, 0.5170317135678335]
+
     player1_heuristic = [0.15, 0.2, 0.2, 0.5]
     player2_heuristic = [0.05, 0.05, 0.1, 2.9]
 

@@ -2,7 +2,7 @@ import pygame
 import UtilMoveValidness as UMV
 from Player import Player
 from HumanPlayer import HumanPlayer
-from HeuristicBot import HeuristicBot
+from PrunerAB import PrunerAB
 from ReversiBot import ReversiBot
 
 import numpy as np

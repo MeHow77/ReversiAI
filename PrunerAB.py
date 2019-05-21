@@ -3,7 +3,7 @@ import numpy as np
 import UtilMoveValidness as UMV
 
 
-class HeuristicBot(ReversiBot):
+class PrunerAB(ReversiBot):
     def __init__(self, depth, weights):
         super().__init__(depth, weights)
 
